@@ -2,34 +2,26 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
+from food.views import TagViewSet, IngredientViewSet, RecipeViewSet, \
+    ShoppingCartViewSet, FavoriteViewSet
 from users.views import CustomUserViewSet
 
 api_v1 = DefaultRouter()
 
+api_v1.register(r'ingredients',
+                IngredientViewSet, basename='ingredients')
+api_v1.register(r'recipes', RecipeViewSet, basename='recipes')
+api_v1.register(r'tags', TagViewSet, basename='tags')
 api_v1.register(r'users', CustomUserViewSet, basename='users')
+api_v1.register('favorites', FavoriteViewSet, basename='favorites')
+api_v1.register('shopping_cart', ShoppingCartViewSet, basename='shopping-cart')
+
 
 urlpatterns = [
+    path('users/subscriptions/',
+         CustomUserViewSet.as_view({'get': 'subscriptions'}),
+         name='user-subscriptions'),
+    # path('', include('djoser.urls')),
+    path('auth/', include('djoser.urls.authtoken')),
     path('', include(api_v1.urls)),
-    path('', include('djoser.urls')),
-    path('auth/', include('djoser.urls.authtoken'))
 ]
-    # path('users/', include('users.urls')),             # твой кастомный ViewSet
-    # path('', include('djoser.urls.base')),             # регистрация и т.п.
-
-
-# urlpatterns = [
-#
-#     path('', include('djoser.urls')),
-#     # регистрация, вход, выход, смена пароля и т.п.
-#     path('auth/', include('djoser.urls.authtoken')),  # токен-аутентификация
-#     path('users/', include('users.urls')),  # твои кастомные роуты, если нужны
-#
-#
-#     # path('', include('djoser.urls.base')),  # без пользователей
-#     # path('', include('djoser.urls')),
-#     # path('auth/', include('djoser.urls.authtoken')),
-# ]
-#
-#     path('users/me/avatar/', UserView.as_view(), name='avatar'),
-# ]
-

@@ -38,8 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'django_filters',
     'rest_framework',
     'rest_framework.authtoken',
+    'corsheaders',
     'api',
     'djoser',
     'food',
@@ -49,6 +51,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -141,6 +144,9 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 10,
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ]
 }
 
 MEDIA_URL = '/media/'
@@ -149,7 +155,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DJOSER = {
     "SERIALIZERS": {
-        "user": "users.serializers.UserSerializer",
+        "user": "users.serializers.CustomUserSerializer",
         "current_user": "users.serializers.CustomUserSerializer",
         # 'user_create': 'users.serializers.UserCreateSerializer',  # если кастомный
     },
@@ -160,41 +166,9 @@ DJOSER = {
         'user_list': ['rest_framework.permissions.AllowAny'],
     },
     'HIDE_USERS': False,
-
-    # 'USER_CREATE_PASSWORD_RETYPE': False,
-    # 'PERMISSIONS': {
-    #     # Разрешаем создание юзера без токена
-    #     'user_create': ['rest_framework.permissions.AllowAny'],
-    #     # другие permissions...
-    #     'user': ['rest_framework.permissions.IsAuthenticated'],
-    # }
 }
 
-
-#
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-#     'loggers': {
-#         'django.request': {
-#             'handlers': ['console'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#         'django.security.DisallowedHost': {
-#             'handlers': ['console'],
-#             'level': 'ERROR',
-#             'propagate': True,
-#         },
-#         'django.db.backends': {
-#             'handlers': ['console'],
-#             'level': 'DEBUG',
-#         },
-#     },
-# }
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_URLS_REGEX = r'^/api/.*$'
+CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000',]
 

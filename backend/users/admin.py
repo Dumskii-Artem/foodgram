@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.html import format_html
 
-from .models import User
+from .models import User, Follow
 
 
 @admin.register(User)
@@ -58,6 +58,9 @@ class CustomUserAdmin(UserAdmin):
         return "-"
 
     avatar_link.short_description = "Файл аватара"
-from django.contrib import admin
 
-# Register your models here.
+@admin.register(Follow)
+class FollowAdmin(admin.ModelAdmin):
+    list_display = ('follower', 'following')
+    search_fields = ('follower__username', 'following__username')
+    list_filter = ('follower', 'following')

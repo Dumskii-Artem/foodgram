@@ -1,9 +1,12 @@
+# backend/users/models.py
+
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
+from . import constants as uconst
 
 username_validator = RegexValidator(
-    regex=r'^[\w.@-]+$',  # <-- стандарт Django: буквы, цифры, _, ., @, -
+    regex=r'^[\w.@-]+$',
     message=('Имя пользователя может содержать'
              ' только буквы, цифры и символы @ . - _')
 )
@@ -11,19 +14,19 @@ username_validator = RegexValidator(
 class User(AbstractUser):
     email = models.EmailField(
         unique=True,
-        max_length=50,
+        max_length=uconst.USER_EMAIL_LENGTH,
         verbose_name="Email"
     )
     first_name = models.CharField(
-        max_length=50,
+        max_length=uconst.USER_FIRST_NAME_LENGTH,
         verbose_name="First name"
     )
     last_name = models.CharField(
-        max_length=50,
+        max_length=uconst.USER_LAST_NAME_LENGTH,
         verbose_name="Last name"
     )
     username = models.CharField(
-        max_length=50,
+        max_length=uconst.USER_USERNAME_LENGTH,
         unique=True,
         verbose_name="Username",
         validators=[username_validator],
@@ -52,14 +55,6 @@ class Follow(models.Model):
 
     class Meta:
         unique_together = ('following', 'follower')
-
-    # def clean(self):
-    #     if self.follower == self.following:
-    #         raise ValidationError("Нельзя подписаться на самого себя.")
-    #
-    # def save(self, *args, **kwargs):
-    #     self.clean()
-    #     super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.follower} подписан на {self.following}'

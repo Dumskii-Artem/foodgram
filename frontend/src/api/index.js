@@ -54,6 +54,7 @@ class Api {
   }
 
   signup({ email, password, username, first_name, last_name }) {
+    alert('Post signup')
     return fetch(`/api/users/`, {
       method: "POST",
       headers: this._headers,
@@ -137,15 +138,13 @@ class Api {
     const authorization = token ? { authorization: `Token ${token}` } : {};
     const tagsString = tags
       ? tags
-          .filter((tag) => tag.value)
-          .map((tag) => `&tags=${tag.slug}`)
-          .join("")
+        .filter((tag) => tag.value)
+        .map((tag) => `&tags=${tag.slug}`)
+        .join("")
       : "";
     return fetch(
-      `/api/recipes/?page=${page}&limit=${limit}${
-        author ? `&author=${author}` : ""
-      }${is_favorited ? `&is_favorited=${is_favorited}` : ""}${
-        is_in_shopping_cart ? `&is_in_shopping_cart=${is_in_shopping_cart}` : ""
+      `/api/recipes/?page=${page}&limit=${limit}${author ? `&author=${author}` : ""
+      }${is_favorited ? `&is_favorited=${is_favorited}` : ""}${is_in_shopping_cart ? `&is_in_shopping_cart=${is_in_shopping_cart}` : ""
       }${tagsString}`,
       {
         method: "GET",
@@ -377,6 +376,6 @@ class Api {
   }
 }
 
-export default new Api(process.env.API_URL || "http://localhost", {
+export default new Api(process.env.API_URL || "http://127.0.0.1:8000", {
   "content-type": "application/json",
 });
