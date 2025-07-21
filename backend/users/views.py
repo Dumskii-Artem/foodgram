@@ -9,8 +9,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import (
     AllowAny,
     IsAuthenticated,
-    IsAuthenticatedOrReadOnly
-)
+    IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
 from food.serializers import FollowSerializer
