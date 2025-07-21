@@ -1,8 +1,11 @@
 # backend/food/management/commands/load_ingredients.py
 
 import csv
+
 from django.core.management.base import BaseCommand
+
 from food.models import Ingredient
+
 
 class Command(BaseCommand):
     help = 'Загружает ингредиенты из CSV-файла'

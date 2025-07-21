@@ -1,7 +1,9 @@
 # backend/food/management/commands/delete_ingredients_all.py
 
 from django.core.management.base import BaseCommand
+
 from food.models import Ingredient
+
 
 class Command(BaseCommand):
     help = 'Удалить все ингредиенты из базы данных'

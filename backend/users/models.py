@@ -3,6 +3,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
+
 from . import constants as uconst
 
 username_validator = RegexValidator(
@@ -10,6 +11,7 @@ username_validator = RegexValidator(
     message=('Имя пользователя может содержать'
              ' только буквы, цифры и символы @ . - _')
 )
+
 
 class User(AbstractUser):
     email = models.EmailField(

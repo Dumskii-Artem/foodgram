@@ -1,8 +1,9 @@
 # backend/food/admin.py
 
 from django.contrib import admin
-from .models import Tag, Ingredient, Favorite, ShoppingCartItem, \
-    RecipeIngredient, Recipe
+
+from .models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                     ShoppingCartItem, Tag)
 
 
 @admin.register(Tag)
@@ -10,6 +11,7 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'slug')
     search_fields = ('name', 'slug')
     list_filter = ('name',)
+
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):

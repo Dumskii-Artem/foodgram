@@ -3,17 +3,17 @@ import os
 
 from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import (AllowAny, IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
+from rest_framework.response import Response
 
 from food.serializers import FollowSerializer
 from users.models import Follow
 from users.pagination import CustomPagination
 from users.serializers import CustomUserSerializer
-from rest_framework.response import Response
-from rest_framework.permissions import (
-     IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny)
-from rest_framework import status
 
 User = get_user_model()
 
@@ -55,14 +55,11 @@ class CustomUserViewSet(UserViewSet):
                 user.avatar = CustomUserSerializer(
                     context={'request': request}
                 ).fields['avatar'].to_internal_value(avatar)
-            except Exception as e:
+            except Exception:
                 return Response(
                     {'avatar': ['Некорректный формат изображения.']},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            # Создаем новый файл аватара, не удаляя пока старый
-            # user.avatar = (
-            #     CustomUserSerializer().fields['avatar'].to_internal_value(avatar))
             user.save()
 
             # Удаляем старый файл, если он был и отличается от нового
@@ -81,11 +78,11 @@ class CustomUserViewSet(UserViewSet):
                 status=status.HTTP_200_OK
             )
 
-        elif  request.method == 'DELETE':
+        elif request.method == 'DELETE':
             if (
-                    user.avatar and
-                    user.avatar.path and
-                    os.path.isfile(user.avatar.path)
+                    user.avatar
+                    and user.avatar.path
+                    and os.path.isfile(user.avatar.path)
             ):
                 try:
                     os.remove(user.avatar.path)
@@ -96,7 +93,10 @@ class CustomUserViewSet(UserViewSet):
             user.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=True, methods=['post', 'delete'], permission_classes=[IsAuthenticated])
+    @action(detail=True,
+            methods=['post', 'delete'],
+            permission_classes=[IsAuthenticated]
+            )
     def subscribe(self, request, **kwargs):
         print("KWARGS:", kwargs)
         pk = kwargs.get('id')
@@ -105,8 +105,13 @@ class CustomUserViewSet(UserViewSet):
 
         if request.method == 'POST':
             if user == target:
-                return Response({'error': 'Нельзя подписаться на себя'}, status=400)
-            if Follow.objects.filter(follower=user, following=target).exists():
+                return Response(
+                    {'error': 'Нельзя подписаться на себя'},
+                    status=400
+                )
+            if Follow.objects.filter(
+                    follower=user,
+                    following=target).exists():
                 return Response({'error': 'Уже подписан'}, status=400)
             Follow.objects.create(follower=user, following=target)
             serializer = FollowSerializer(
@@ -119,22 +124,23 @@ class CustomUserViewSet(UserViewSet):
             if follow.exists():
                 follow.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
-            return Response({'error': 'Подписка не найдена'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'error': 'Подписка не найдена'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
     @action(detail=False, methods=['get'], permission_classes=[AllowAny])
     def subscriptions(self, request):
-        user = request.user
-        # print(f'Запрос подписок от пользователя: {user} {request}')
-        follows = Follow.objects.filter(follower=user)
-        authors = User.objects.filter(pk__in=follows.values_list('following__id', flat=True))
+        authors = User.objects.filter(
+            pk__in=Follow.objects
+            .filter(follower=request.user)
+            .values_list('following__id', flat=True)
+        )
 
         paginator = CustomPagination()
-        paginated_authors = paginator.paginate_queryset(authors, request)
-
         serializer = FollowSerializer(
-            paginated_authors,
+            paginator.paginate_queryset(authors, request),
             many=True,
             context={'request': request}
         )
         return paginator.get_paginated_response(serializer.data)
-

@@ -3,12 +3,12 @@ import uuid
 
 from rest_framework import serializers
 
-from users.models import User, Follow
-from users.serializers import CustomUserSerializer
-from .models import Tag, Ingredient, Recipe, RecipeIngredient, Favorite, \
-    ShoppingCartItem, RecipeTag
 from library.base64ImageField import Base64ImageField
-from food import constants as const
+from users.models import Follow, User
+from users.serializers import CustomUserSerializer
+
+from .models import (Favorite, Ingredient, Recipe, RecipeIngredient, RecipeTag,
+                     ShoppingCartItem, Tag)
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -37,6 +37,7 @@ class RecipeIngredientReadSerializer(serializers.ModelSerializer):
 
 class RecipeIngredientWriteSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
+
     class Meta:
         model = RecipeIngredient
         fields = ('id', 'amount')
@@ -79,11 +80,6 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     def get_is_in_shopping_cart(self, obj):
         return self.check_user_status(obj, ShoppingCartItem)
 
-
-# class IngredientAmountSerializer(serializers.Serializer):
-#     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
-#     amount = serializers.IntegerField()
-#
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
     ingredients = RecipeIngredientWriteSerializer(
@@ -167,7 +163,9 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     def validate_ingredients(self, value):
         if not value:
-            raise serializers.ValidationError('Необходимо указать хотя бы один ингредиент.')
+            raise serializers.ValidationError(
+                'Необходимо указать хотя бы один ингредиент.'
+            )
 
         ingredient_ids = [item['id'] for item in value]
         existing_ids = set(
@@ -197,13 +195,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Теги не должны повторяться.')
 
         return value
-    #
-    # def validate_cooking_time(self, value):
-    #     if value < const.RECIPE_MIN_COOKING_TIME:
-    #         raise serializers.ValidationError(
-    #             'Время приготовления должно быть не меньше'
-    #             f' {const.RECIPE_MIN_COOKING_TIME}.')
-    #     return value
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
@@ -225,25 +216,6 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
 
-
-# class FollowSerializer(serializers.ModelSerializer):
-#     recipes = ShortRecipeSerializer(many=True, read_only=True)
-#     recipes_count = serializers.SerializerMethodField()
-#     is_subscribed = serializers.SerializerMethodField()
-#
-#     class Meta:
-#         model = User
-#         fields = (
-#             'id', 'username', 'first_name', 'last_name', 'email',
-#             'is_subscribed', 'avatar', 'recipes', 'recipes_count',
-#         )
-#
-#     def get_is_subscribed(self, obj):
-#         user = self.context.get('request').user
-#         return Follow.objects.filter(follower=user, following=obj).exists()
-#
-#     def get_recipes_count(self, obj):
-#         return obj.recipes.count()
 
 class RecipeShortSerializer(serializers.ModelSerializer):
     class Meta:

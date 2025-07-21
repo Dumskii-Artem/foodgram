@@ -1,6 +1,7 @@
 # backend/food/models.py
 from django.core.validators import MinValueValidator
 from django.db import models
+
 from food import constants as const
 from users.models import User
 
