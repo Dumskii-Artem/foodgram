@@ -146,7 +146,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         self.create_ingredients(ingredients, recipe)
         return recipe
 
-    def update(self, instance, validaexitted_data):
+    def update(self, instance, validated_data):
         tags = validated_data.get('tags')
         if tags is None:
             raise serializers.ValidationError(

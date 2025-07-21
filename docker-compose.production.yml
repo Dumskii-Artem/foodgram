@@ -1,0 +1,33 @@
+# Файл docker-compose.yml
+
+volumes:
+  food_data_prod:
+  static_volume:
+
+services:
+  food_db:
+    image: postgres:13.10
+    env_file: .env
+    volumes:
+      - food_data_prod:/var/lib/postgresql/data
+  backend:
+    image: babybeardocker/food_back
+    env_file: .env
+    depends_on:
+      - food_db
+    volumes:
+      - static_volume:/backend_static
+  frontend:
+    image: babybeardocker/food_front
+    env_file: .env
+    command: cp -r /app/build/. /frontend_static/
+    volumes:
+      - static_volume:/frontend_static
+  gateway:
+    image: babybeardocker/food_gate
+    volumes:
+      - static_volume:/staticfiles/
+    # перенаправление всех запросов с порта 8000 хоста
+    # на порт 80 контейнера
+    ports:
+      - 8000:80

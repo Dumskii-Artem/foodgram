@@ -1,0 +1,33 @@
+# Файл docker-compose.yml
+
+volumes:
+  food_data:
+  static_data:
+
+services:
+  food_db:
+    image: postgres:13.10
+    env_file: .env
+    volumes:
+      - food_data:/var/lib/postgresql/data
+  backend:
+    build: ./backend/
+    env_file: .env
+    depends_on:
+      - food_db
+    volumes:
+      - static_data:/backend_static
+  frontend:
+    env_file: .env
+    build: ./frontend/
+    command: cp -r /app/build/. /frontend_static/
+    volumes:
+      - static_data:/frontend_static
+  gateway:
+    build: ./nginx/
+    volumes:
+      - static_data:/staticfiles/
+    # перенаправление всех запросов с порта 8000 хоста
+    # на порт 80 контейнера
+    ports:
+      - 8000:80
