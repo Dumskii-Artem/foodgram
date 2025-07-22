@@ -3,6 +3,7 @@
 volumes:
   food_data_prod:
   static_volume:
+  media_volume:
 
 services:
   food_db:
@@ -17,6 +18,7 @@ services:
       - food_db
     volumes:
       - static_volume:/backend_static
+      - media_volume:/app/media
   frontend:
     image: babybeardocker/food_front
     env_file: .env
