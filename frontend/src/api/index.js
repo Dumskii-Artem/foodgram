@@ -54,7 +54,6 @@ class Api {
   }
 
   signup({ email, password, username, first_name, last_name }) {
-    alert('Post signup')
     return fetch(`/api/users/`, {
       method: "POST",
       headers: this._headers,
