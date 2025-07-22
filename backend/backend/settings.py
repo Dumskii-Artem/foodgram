@@ -13,13 +13,8 @@ import logging
 import os
 from pathlib import Path
 
-# from dotenv import load_dotenv
-
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
-
-
-# load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -27,37 +22,6 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'SECRET_KEY')
 DEBUG = (os.getenv('DEBUG') == 'True')
 
 ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(",")]
-# # \
-# #     (
-# #
-# #     os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(","))
-#
-# logger.info(f"Settings loaded! SECRET_KEY: {os.environ.get('SECRET_KEY')}")
-# logger.info(f"DEBUG mode is {'on' if os.environ.get('DEBUG') == 'True' else 'off'}")
-# logger.info(f"-ALLOWED_HOSTS: {os.environ.get('ALLOWED_HOSTS')}")
-# logger.info(f"+ALLOWED_HOSTS: {ALLOWED_HOSTS}")
-#
-
-# # Build paths inside the project like this: BASE_DIR / 'subdir'.
-# BASE_DIR = Path(__file__).resolve().parent.parent
-#
-#
-# # Quick-start development settings - unsuitable for production
-# # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-#
-# # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'django-insecure-fi#^!#-3qp%ja0dhmf&=s$(v6f%t!*^f*jv2f500jpsr5f4nlk'
-#
-# # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = False
-#
-# ALLOWED_HOSTS = ['localhost', '127.0.0.1',
-#                  'babybear.myddns.me', '89.169.164.5']
-#
-# logger.info(f"*Settings loaded! SECRET_KEY: {os.environ.get('SECRET_KEY')}")
-# logger.info(f"*DEBUG mode is {'on' if os.environ.get('DEBUG') == 'True' else 'off'}")
-# logger.info(f"*+ALLOWED_HOSTS: {os.environ.get('ALLOWED_HOSTS')}")
-# logger.info(f"**ALLOWED_HOSTS: {ALLOWED_HOSTS}")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -183,17 +147,14 @@ DJOSER = {
     },
     'USER_CREATE_PASSWORD_RETYPE': False,
     'PERMISSIONS': {
-        # 'user_create': ['rest_framework.permissions.AllowAny'],
         'user': ['rest_framework.permissions.AllowAny'],
         'user_list': ['rest_framework.permissions.AllowAny'],
     },
     'HIDE_USERS': False,
 }
+#
+# CORS_ORIGIN_ALLOW_ALL = True
+# CORS_URLS_REGEX = r'^/api/.*$'
+# CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000',]
 
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_URLS_REGEX = r'^/api/.*$'
-CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000',]
-
-# print("DEBUG:", DEBUG)
-# print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
-# print("SECRET_KEY:", SECRET_KEY[:10])
+CSRF_TRUSTED_ORIGINS = ['https://babybear.myddns.me']
