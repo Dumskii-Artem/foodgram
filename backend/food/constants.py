@@ -5,6 +5,8 @@ RECIPE_NAME_LENGTH = 255
 TAG_NAME_LENGTH = 30
 TAG_SLUG_LENGTH = 20
 
-RECIPE_BACK_SHORT_LINK = 'http://127.0.0.1:8000/recipe_'
-RECIPE_FRONT_SHORT_LINK = 'http://localhost:3000/recipes/'
+# RECIPE_BACK_SHORT_LINK = 'http://127.0.0.1:8000/recipe_'
+# RECIPE_FRONT_SHORT_LINK = 'http://localhost:3000/recipes/'
+RECIPE_BACK_SHORT_LINK = 'https://babybear.myddns.me/recipe_'
+RECIPE_FRONT_SHORT_LINK = 'https://babybear.myddns.me/recipes/'
 RECIPE_MIN_COOKING_TIME = 1  # in minutes
