@@ -38,7 +38,7 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(",")
 #
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1',
 #                  'babybear.myddns.me', '89.169.164.5']
-#
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -174,3 +174,7 @@ DJOSER = {
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_URLS_REGEX = r'^/api/.*$'
 CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000',]
+
+print("DEBUG:", DEBUG)
+print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
+print("SECRET_KEY:", SECRET_KEY[:10]) 
