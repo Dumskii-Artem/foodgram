@@ -48,8 +48,8 @@ logger.info(f"*ALLOWED_HOSTS: {os.environ.get('ALLOWED_HOSTS')}")
 # # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = False
 #
-# ALLOWED_HOSTS = ['localhost', '127.0.0.1',
-#                  'babybear.myddns.me', '89.169.164.5']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1',
+                 'babybear.myddns.me', '89.169.164.5']
 
 
 INSTALLED_APPS = [
