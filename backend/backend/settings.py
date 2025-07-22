@@ -13,13 +13,13 @@ import logging
 import os
 from pathlib import Path
 
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
 
-load_dotenv()
+# load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -27,16 +27,16 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'SECRET_KEY')
 DEBUG = (os.getenv('DEBUG') == 'True')
 
 ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(",")]
-# \
-#     (
+# # \
+# #     (
+# #
+# #     os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(","))
 #
-#     os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(","))
-
-logger.info(f"Settings loaded! SECRET_KEY: {os.environ.get('SECRET_KEY')}")
-logger.info(f"DEBUG mode is {'on' if os.environ.get('DEBUG') == 'True' else 'off'}")
-logger.info(f"-ALLOWED_HOSTS: {os.environ.get('ALLOWED_HOSTS')}")
-logger.info(f"+ALLOWED_HOSTS: {ALLOWED_HOSTS}")
-
+# logger.info(f"Settings loaded! SECRET_KEY: {os.environ.get('SECRET_KEY')}")
+# logger.info(f"DEBUG mode is {'on' if os.environ.get('DEBUG') == 'True' else 'off'}")
+# logger.info(f"-ALLOWED_HOSTS: {os.environ.get('ALLOWED_HOSTS')}")
+# logger.info(f"+ALLOWED_HOSTS: {ALLOWED_HOSTS}")
+#
 
 # # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
@@ -51,13 +51,13 @@ logger.info(f"+ALLOWED_HOSTS: {ALLOWED_HOSTS}")
 # # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = False
 #
-ALLOWED_HOSTS = ['localhost', '127.0.0.1',
-                 'babybear.myddns.me', '89.169.164.5']
-
-logger.info(f"*Settings loaded! SECRET_KEY: {os.environ.get('SECRET_KEY')}")
-logger.info(f"*DEBUG mode is {'on' if os.environ.get('DEBUG') == 'True' else 'off'}")
-logger.info(f"*+ALLOWED_HOSTS: {os.environ.get('ALLOWED_HOSTS')}")
-logger.info(f"**ALLOWED_HOSTS: {ALLOWED_HOSTS}")
+# ALLOWED_HOSTS = ['localhost', '127.0.0.1',
+#                  'babybear.myddns.me', '89.169.164.5']
+#
+# logger.info(f"*Settings loaded! SECRET_KEY: {os.environ.get('SECRET_KEY')}")
+# logger.info(f"*DEBUG mode is {'on' if os.environ.get('DEBUG') == 'True' else 'off'}")
+# logger.info(f"*+ALLOWED_HOSTS: {os.environ.get('ALLOWED_HOSTS')}")
+# logger.info(f"**ALLOWED_HOSTS: {ALLOWED_HOSTS}")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
