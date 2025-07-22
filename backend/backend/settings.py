@@ -9,10 +9,18 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+import logging
 import os
 from pathlib import Path
 
 from dotenv import load_dotenv
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+
+logger.info(f"Settings loaded! SECRET_KEY: {os.environ.get('SECRET_KEY')}")
+logger.info(f"DEBUG mode is {'on' if os.environ.get('DEBUG') == 'True' else 'off'}")
+logger.info(f"ALLOWED_HOSTS: {os.environ.get('ALLOWED_HOSTS')}")
 
 load_dotenv()
 
@@ -22,6 +30,10 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'SECRET_KEY')
 DEBUG = (os.getenv('DEBUG') == 'True')
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(",")
+
+logger.info(f"*Settings loaded! SECRET_KEY: {os.environ.get('SECRET_KEY')}")
+logger.info(f"*DEBUG mode is {'on' if os.environ.get('DEBUG') == 'True' else 'off'}")
+logger.info(f"*ALLOWED_HOSTS: {os.environ.get('ALLOWED_HOSTS')}")
 
 # # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
@@ -175,6 +187,6 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_URLS_REGEX = r'^/api/.*$'
 CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000',]
 
-print("DEBUG:", DEBUG)
-print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
-print("SECRET_KEY:", SECRET_KEY[:10])
+# print("DEBUG:", DEBUG)
+# print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
+# print("SECRET_KEY:", SECRET_KEY[:10])
