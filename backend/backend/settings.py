@@ -18,9 +18,6 @@ from dotenv import load_dotenv
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
-logger.info(f"Settings loaded! SECRET_KEY: {os.environ.get('SECRET_KEY')}")
-logger.info(f"DEBUG mode is {'on' if os.environ.get('DEBUG') == 'True' else 'off'}")
-logger.info(f"ALLOWED_HOSTS: {os.environ.get('ALLOWED_HOSTS')}")
 
 load_dotenv()
 
@@ -31,9 +28,10 @@ DEBUG = (os.getenv('DEBUG') == 'True')
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(",")
 
-logger.info(f"*Settings loaded! SECRET_KEY: {os.environ.get('SECRET_KEY')}")
-logger.info(f"*DEBUG mode is {'on' if os.environ.get('DEBUG') == 'True' else 'off'}")
-logger.info(f"*ALLOWED_HOSTS: {os.environ.get('ALLOWED_HOSTS')}")
+logger.info(f"Settings loaded! SECRET_KEY: {os.environ.get('SECRET_KEY')}")
+logger.info(f"DEBUG mode is {'on' if os.environ.get('DEBUG') == 'True' else 'off'}")
+logger.info(f"ALLOWED_HOSTS: {os.environ.get('ALLOWED_HOSTS')}")
+
 
 # # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
@@ -51,6 +49,9 @@ logger.info(f"*ALLOWED_HOSTS: {os.environ.get('ALLOWED_HOSTS')}")
 ALLOWED_HOSTS = ['localhost', '127.0.0.1',
                  'babybear.myddns.me', '89.169.164.5']
 
+logger.info(f"*Settings loaded! SECRET_KEY: {os.environ.get('SECRET_KEY')}")
+logger.info(f"*DEBUG mode is {'on' if os.environ.get('DEBUG') == 'True' else 'off'}")
+logger.info(f"*ALLOWED_HOSTS: {os.environ.get('ALLOWED_HOSTS')}")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
