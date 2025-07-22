@@ -29,6 +29,7 @@ services:
     image: babybeardocker/food_gate
     volumes:
       - static_volume:/staticfiles/
+#      - media_volume:/mediafiles
     # перенаправление всех запросов с порта 8000 хоста
     # на порт 80 контейнера
     ports:

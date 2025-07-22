@@ -136,13 +136,13 @@ REST_FRAMEWORK = {
     ]
 }
 
-logger.info(f'BASE_DIR is:"{BASE_DIR}"')
+# logger.info(f'BASE_DIR is:"{BASE_DIR}"')
 
 MEDIA_URL = '/media/'
 # MEDIA_ROOT = '/app/media'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-logger.info(f'MEDIA_ROOT is:"{MEDIA_ROOT}"')
+# logger.info(f'MEDIA_ROOT is:"{MEDIA_ROOT}"')
 
 DJOSER = {
     "SERIALIZERS": {
