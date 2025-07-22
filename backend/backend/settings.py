@@ -26,12 +26,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'SECRET_KEY')
 DEBUG = (os.getenv('DEBUG') == 'True')
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(",")
+ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(",")]
+# \
+#     (
+#
+#     os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(","))
 
 logger.info(f"Settings loaded! SECRET_KEY: {os.environ.get('SECRET_KEY')}")
 logger.info(f"DEBUG mode is {'on' if os.environ.get('DEBUG') == 'True' else 'off'}")
-logger.info(f"\ALLOWED_HOSTS: {os.environ.get('ALLOWED_HOSTS')}")
-logger.info(f"/ALLOWED_HOSTS: {ALLOWED_HOSTS}")
+logger.info(f"-ALLOWED_HOSTS: {os.environ.get('ALLOWED_HOSTS')}")
+logger.info(f"+ALLOWED_HOSTS: {ALLOWED_HOSTS}")
 
 
 # # Build paths inside the project like this: BASE_DIR / 'subdir'.
