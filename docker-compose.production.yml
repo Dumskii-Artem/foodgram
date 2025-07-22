@@ -1,4 +1,4 @@
-# Файл docker-compose.yml
+# Файл docker-compose.production.yml
 
 volumes:
   food_data_prod:

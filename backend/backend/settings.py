@@ -177,4 +177,4 @@ CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000',]
 
 print("DEBUG:", DEBUG)
 print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
-print("SECRET_KEY:", SECRET_KEY[:10]) 
+print("SECRET_KEY:", SECRET_KEY[:10])
