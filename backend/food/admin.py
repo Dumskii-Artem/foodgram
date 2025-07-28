@@ -100,16 +100,6 @@ class UserProfileAdmin(UserAdmin):
     def full_name(user):
         return f'{user.first_name} {user.last_name}'
 
-    # @mark_safe
-    # def avatar_preview(self, user):
-    #     if user.avatar:
-    #         return (
-    #             f'<img src="{user.avatar.url}" width="40" height="40" '
-    #             f'style="object-fit: cover; border-radius: 4px;" />'
-    #         )
-    #     return '-'
-    # avatar_preview.short_description = 'Аватар'
-
     @staticmethod
     def recipe_count(user):
         return user.recipes.count()
@@ -150,9 +140,6 @@ class UserProfileAdmin(UserAdmin):
     search_fields = ('username', 'email', 'first_name', 'last_name')
     ordering = ('id',)
 
-
-
-
     @admin.display(description='Аватар')
     def avatar_preview(self, user):
         if user.avatar:
@@ -162,7 +149,6 @@ class UserProfileAdmin(UserAdmin):
                 user.avatar.url
             )
         return '-'
-
 
 @admin.register(Follow)
 class FollowAdmin(admin.ModelAdmin):

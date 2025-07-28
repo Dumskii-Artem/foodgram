@@ -111,12 +111,12 @@ class Ingredient(models.Model):
     )
     measurement_unit = models.CharField(
         max_length=const.INGREDIENT_MEASUREMENT_UNIT_LENGTH,
-        verbose_name='Единица измерения'
+        verbose_name='мера'
     )
 
     class Meta:
-        verbose_name = 'Ингредиент'
-        verbose_name_plural = 'Ингредиенты'
+        verbose_name = 'Продукт'
+        verbose_name_plural = 'Продукты'
         ordering = ('name',)
         constraints = [
             models.UniqueConstraint(
@@ -154,7 +154,6 @@ class Recipe(models.Model):
     )
     tags = models.ManyToManyField(
         'Tag',
-        # through='RecipeTag',
         related_name='recipes'
     )
     ingredients = models.ManyToManyField(
@@ -162,13 +161,6 @@ class Recipe(models.Model):
         through='RecipeIngredient',
         related_name='recipes'
     )
-    # short_link = models.CharField(
-    #     max_length=6,
-    #     unique=True,
-    #     editable=False,
-    #     blank=False,
-    #     null=False
-    # )
 
     class Meta:
         default_related_name = 'recipes'

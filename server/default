@@ -1,0 +1,87 @@
+server {
+    server_name 89.169.164.5 babybear.myddns.me;
+
+    client_max_body_size 50M;
+    
+    location / {
+        proxy_set_header Host $http_host;
+        proxy_pass http://127.0.0.1:8500;
+    }
+
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/babybear.myddns.me/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/babybear.myddns.me/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+}
+
+server {
+    if ($host = babybear.myddns.me) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+    server_name  babybear.myddns.me;
+    listen 80;
+    server_tokens off;
+    return 404; # managed by Certbot
+}
+
+server {
+    server_name catsonlynodogs.myddns.me;
+
+    client_max_body_size 50M;
+
+    location / {
+        proxy_set_header Host $http_host;
+        proxy_pass http://127.0.0.1:9000;
+    }
+
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/catsonlynodogs.myddns.me/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/catsonlynodogs.myddns.me/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+}
+
+server {
+    if ($host = catsonlynodogs.myddns.me) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+    server_name catsonlynodogs.myddns.me;
+    listen 80;
+    server_tokens off;
+    return 404; # managed by Certbot
+}
+
+server {
+    server_name web-larek.myddns.me;
+
+
+    root /var/www/larek;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/web-larek.myddns.me/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/web-larek.myddns.me/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+}
+
+
+server {
+    if ($host = web-larek.myddns.me) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen 80;
+    server_name web-larek.myddns.me;
+    return 404; # managed by Certbot
+}
