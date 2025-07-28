@@ -3,6 +3,11 @@
 import logging
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# работает только для локальной версии
+# на хосте данные попадают через окружение
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
@@ -14,6 +19,7 @@ DEBUG = (os.getenv('DEBUG') == 'True')
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 logger.info(f"ALLOWED_HOSTS: {ALLOWED_HOSTS}")
+# logger.info(f'USE_POSTGRESQL: {USE_POSTGRESQL}{type(USE_POSTGRESQL)}')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -29,8 +35,8 @@ INSTALLED_APPS = [
     'django_filters',
     'django_extensions',
     'djoser',
+    'django_cleanup.apps.CleanupConfig',
 
-    'users',
     'food',
     'api',
 ]
@@ -51,7 +57,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -66,7 +72,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-if os.getenv('USE_POSTGRESQL', True):
+if (os.getenv('USE_POSTGRESQL', 'True') == 'True'):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -112,7 +118,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = 'food.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
@@ -121,7 +127,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
-    'DEFAULT_PAGINATION_CLASS': 'food.pagination.CustomPageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': 'api.pagination.RecipePagination',
     'PAGE_SIZE': 6,
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
@@ -138,8 +144,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DJOSER = {
     "SERIALIZERS": {
-        "user": "users.serializers.CustomUserSerializer",
-        "current_user": "users.serializers.CustomUserSerializer",
+        "user": "api.serializers.UserWithSubscriptionSerializer",
+        "current_user": "api.serializers.UserWithSubscriptionSerializer",
     },
     'USER_CREATE_PASSWORD_RETYPE': False,
     'PERMISSIONS': {

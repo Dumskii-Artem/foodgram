@@ -1,0 +1,12 @@
+[
+  {"name": "Завтрак", "slug": "breakfast"},
+  {"name": "Обед", "slug": "lunch"},
+  {"name": "Ужин", "slug": "dinner"},
+  {"name": "Полдник", "slug": "snack"},
+  {"name": "Постное", "slug": "fasting"},
+  {"name": "Вегетарианское", "slug": "vegetarian"},
+  {"name": "Диетическое", "slug": "diet"},
+  {"name": "Закуски", "slug": "appetizers"},
+  {"name": "Десерты", "slug": "desserts"},
+  {"name": "Напитки", "slug": "drinks"}
+]

@@ -4,17 +4,19 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
-from food.views import redirect_by_short_link
+# from food.views import redirect_by_short_link
+
+# from food.views import redirect_by_short_link
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
-]
 
-urlpatterns += [
-    path('recipe_<str:short_link>/',
-         redirect_by_short_link,
-         name='recipe_short_link'),
+    # path('yummy/<int:recipe_id>/', redirect_by_short_link, name='short-link'),
+
+    # path('recipe_<str:short_link>/',
+    #      redirect_by_short_link,
+    #      name='recipe_short_link'),
 ]
 
 if settings.DEBUG:
