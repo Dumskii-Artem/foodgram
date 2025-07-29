@@ -19,7 +19,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'SECRET_KEY')
 DEBUG = (os.getenv('DEBUG') == 'True')
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
-logger.info(f"ALLOWED_HOSTS: {ALLOWED_HOSTS}")
+# logger.info(f"ALLOWED_HOSTS: {ALLOWED_HOSTS}")
 # logger.info(f'USE_POSTGRESQL: {USE_POSTGRESQL}{type(USE_POSTGRESQL)}')
 
 INSTALLED_APPS = [

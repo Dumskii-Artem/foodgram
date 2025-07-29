@@ -1,5 +1,6 @@
 import os
 from io import BytesIO
+from dotenv import load_dotenv
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
@@ -18,6 +19,7 @@ from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
+
 from api.filters import RecipeFilter
 from api.pagination import RecipePagination
 from api.serializers import (FollowedUserSerializer, IngredientSerializer,
@@ -30,6 +32,12 @@ from food.models import (Favorite, Follow, Ingredient, Recipe,
 from library.shopping_list import generate_shopping_list
 
 User = get_user_model()
+
+# работает только для локальной версии
+# на хосте данные попадают через окружение
+load_dotenv()
+RECIPE_SHORT_LINK = os.environ.get(
+    'RECIPE_SHORT_LINK', 'localhost:3000/recipes/')
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -97,7 +105,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'], url_path='get-link')
     def get_short_link(self, request, pk=None):
         self.get_object()
-        short_link = f'{const.RECIPE_SHORT_LINK}{pk}'
+        short_link = f'{RECIPE_SHORT_LINK}{pk}'
         return Response({'short-link': short_link}, status=status.HTTP_200_OK)
 
     @action(
