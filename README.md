@@ -94,11 +94,39 @@ USE_POSTGRESQL=True
 и еще 2 файла из папки foodgram/data
 - ingredients.json
 - tags.json
-первый файл можно скопировать командой, второй команда похожая
 ```
 scp -i ~/.ssh/yp_16_sprint/yc-d-art-mail.dat  ./data/ingredients.json yc-user@89.169.164.5:/home/yc-user/foodgram/
+scp -i ~/.ssh/yp_16_sprint/yc-d-art-mail.dat  ./data/tags.json yc-user@89.169.164.5:/home/yc-user/foodgram/
 ```
 после этого смело пушим наш расчудесный проект на GitHub
+
+копируем файлы с данными внутрь контейнера
+```
+sudo docker cp ingredients.json foodgram-backend-1:/app/
+sudo docker cp tags.json foodgram-backend-1:/app/
+
+```
+далее на удаленном сервере заходим в контейнер
+```
+sudo docker exec -it foodgram-backend-1 bash
+```
+делаем миграции
+```
+python manage.py makemigrations
+python manage.py migrate
+```
+создаем администратора
+```
+python manage.py createsuperuser
+```
+запускаем скрипты для заполнения базы
+```
+python manage.py load_ingredients_json tags.json
+python manage.py load_tags_json tags.json
+```
+переходим по ссылке
+* Сайт: [https://babybear.myddns.me/](https://babybear.myddns.me/)
+и радуемся!
 
 ## Локальный запуск Backend + Frontend
 

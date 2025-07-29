@@ -3,6 +3,7 @@
 from django.template.loader import render_to_string
 from django.utils.timezone import now
 
+
 def generate_shopping_list(user, ingredients, recipes):
     """
     Возвращает текстовый список покупок, сформированный из шаблона.

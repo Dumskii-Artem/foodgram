@@ -5,41 +5,28 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Exists, OuterRef
-from django.http import FileResponse, Http404, HttpResponse
-from django_filters.filterset import FilterSet
+from django.http import FileResponse
 from django_filters.filters import CharFilter
+from django_filters.filterset import FilterSet
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError, PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import (
-    AllowAny,
-    IsAuthenticated,
-    IsAuthenticatedOrReadOnly,
-)
+from rest_framework.permissions import (AllowAny, IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
 from api.filters import RecipeFilter
 from api.pagination import RecipePagination
-from api.permissions import IsAuthorOrReadOnly
-from api.serializers import (
-    IngredientSerializer,
-    RecipeReadSerializer,
-    RecipeWriteSerializer,
-    ShortRecipeSerializer,
-    TagSerializer, UserWithSubscriptionSerializer, FollowedUserSerializer,
-)
+from api.serializers import (FollowedUserSerializer, IngredientSerializer,
+                             RecipeReadSerializer, RecipeWriteSerializer,
+                             ShortRecipeSerializer, TagSerializer,
+                             UserWithSubscriptionSerializer)
 from food import constants as const
-from food.models import (
-    Favorite,
-    Ingredient,
-    Recipe,
-    RecipeIngredient,
-    ShoppingCartItem,
-    Tag, Follow,
-)
+from food.models import (Favorite, Follow, Ingredient, Recipe,
+                         RecipeIngredient, ShoppingCartItem, Tag)
 from library.shopping_list import generate_shopping_list
 
 User = get_user_model()
@@ -185,7 +172,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             content_type='text/plain'
         )
 
-
     def handle_add_or_remove(self, model, user, recipe, request,
                              serializer_class=None):
         obj = model.objects.filter(user=user, recipe=recipe)
@@ -205,7 +191,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             obj.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-
     @action(detail=True,
             methods=['post', 'delete'],
             permission_classes=[IsAuthenticated]
@@ -218,7 +203,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             user=request.user,
             recipe=recipe,
             serializer_class=ShortRecipeSerializer
-         )
+        )
 
     @action(detail=True,
             methods=['post', 'delete'],
@@ -245,7 +230,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return obj
 
 
-
 class UserWithSubscriptionViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = UserWithSubscriptionSerializer
@@ -256,7 +240,6 @@ class UserWithSubscriptionViewSet(UserViewSet):
             permission_classes=[IsAuthenticated])
     def me(self, request, *args, **kwargs):
         return super().me(request, *args, **kwargs)
-
 
     @action(
         detail=False,
@@ -323,7 +306,6 @@ class UserWithSubscriptionViewSet(UserViewSet):
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-
         # if request.method == 'DELETE':
         author = get_object_or_404(User, id=pk)
         try:
@@ -334,7 +316,6 @@ class UserWithSubscriptionViewSet(UserViewSet):
                 {'error': 'Подписка не найдена'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
 
     @action(detail=False, methods=['get'], permission_classes=[AllowAny])
     def subscriptions(self, request):
@@ -349,11 +330,3 @@ class UserWithSubscriptionViewSet(UserViewSet):
             page, many=True, context={'request': request}
         )
         return paginator.get_paginated_response(serializer.data)
-        #
-        # return RecipePagination().get_paginated_response( FollowedUserSerializer(
-        #     RecipePagination().paginate_queryset(authors, request),
-        #     many=True,
-        #     context={'request': request})
-        # )
-        #
-

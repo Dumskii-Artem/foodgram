@@ -1,6 +1,7 @@
 # backend/food/management/commands/load_ingredients_json.py
 
 from food.models import Ingredient
+
 from .base_load_command import BaseLoadCommand
 
 

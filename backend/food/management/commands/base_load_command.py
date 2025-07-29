@@ -5,6 +5,7 @@
 # python manage.py load_tags_json ../data/tags.json
 
 import json
+
 from django.core.management.base import BaseCommand
 
 
@@ -32,13 +33,6 @@ class BaseLoadCommand(BaseCommand):
                     print(f"Пропущено: {item} — несовпадение количества полей")
                     continue
                 seen.add(key)
-
-            # for row in data:
-            #     if not isinstance(row, list) or len(row) != 2:
-            #         self.stdout.write(self.style.WARNING(f'Пропущено: {row}'))
-            #         continue
-            #     seen.add(tuple(row))
-
 
             objects = [
                 self.model(**dict(zip(self.fields, values)))

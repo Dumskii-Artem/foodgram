@@ -3,16 +3,10 @@ import uuid
 
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserSerializer
-
 from rest_framework import serializers
-from rest_framework.decorators import action
-from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
 
-from food.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                         ShoppingCartItem, Tag, Follow)
-
-
+from food.models import (Favorite, Follow, Ingredient, Recipe,
+                         RecipeIngredient, ShoppingCartItem, Tag)
 from library.base64ImageField import Base64ImageField
 
 User = get_user_model()
@@ -29,11 +23,9 @@ class UserWithSubscriptionSerializer(UserSerializer):
 
     def get_is_subscribed(self, author):
         request = self.context.get('request')
-        return (
-                request
+        return (request
                 and not request.user.is_anonymous
-                and request.user.followers.filter(author=author).exists()
-        )
+                and request.user.followers.filter(author=author).exists())
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -66,7 +58,7 @@ class RecipeIngredientWriteSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all(),
         label='Ингредиент',
-        source = 'ingredient'
+        source='ingredient'
     )
     amount = serializers.IntegerField(
         min_value=1,
@@ -76,17 +68,6 @@ class RecipeIngredientWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecipeIngredient
         fields = ('id', 'amount')
-
-    # def validate_id(self, value):
-    #     if not Ingredient.objects.filter(pk=value).exists():
-    #         raise serializers.ValidationError('Ингредиент с таким id не найден.')
-    #     return value
-
-    # id = serializers.IntegerField()
-    #
-    # class Meta:
-    #     model = RecipeIngredient
-    #     fields = ('id', 'amount')
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
@@ -200,7 +181,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
         return recipe
 
-
     def update(self, instance, validated_data):
         instance.ingredients_in_recipe.all().delete()
         RecipeIngredient.objects.filter(recipe=instance).delete()
@@ -238,8 +218,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
         return duplicates
 
-
-
     def validate_ingredients(self, ingredients):
         if not ingredients:
             raise serializers.ValidationError(
@@ -261,7 +239,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     def validate_tags(self, tags):
         if not tags:
-            raise serializers.ValidationError('Нужно выбрать хотя бы один тег.')
+            raise serializers.ValidationError(
+                'Нужно выбрать хотя бы один тег.')
 
         duplicate_ids = self.find_duplicates(tags, key='id')
         if duplicate_ids:
@@ -327,7 +306,6 @@ class FollowedUserSerializer(UserSerializer):
             follower=user, author=followed_user
         ).exists()
 
-
     def get_recipes(self, obj):
         limit = int(self.context['request'].GET.get('recipes_limit', 10 ** 10))
         return ShortRecipeSerializer(
@@ -335,4 +313,3 @@ class FollowedUserSerializer(UserSerializer):
             many=True,
             context=self.context
         ).data
-

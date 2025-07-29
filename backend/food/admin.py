@@ -3,8 +3,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.db.models import Count
-from django.utils.safestring import mark_safe
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
 from .models import (Favorite, Follow, Ingredient, Recipe, RecipeIngredient,
                      ShoppingCartItem, Tag, User)
@@ -70,7 +70,6 @@ class HasFavoritesFilter(admin.SimpleListFilter):
         return queryset
 
 
-
 @admin.register(User)
 class UserProfileAdmin(UserAdmin):
     model = User
@@ -111,13 +110,11 @@ class UserProfileAdmin(UserAdmin):
 
     following_count.short_description = 'Подписок'
 
-
     @staticmethod
     def followers_count(user):
         return user.followers.count()
 
     followers_count.short_description = 'Подписчиков'
-
 
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
@@ -149,6 +146,7 @@ class UserProfileAdmin(UserAdmin):
                 user.avatar.url
             )
         return '-'
+
 
 @admin.register(Follow)
 class FollowAdmin(admin.ModelAdmin):
@@ -246,9 +244,9 @@ class RecipeAdmin(admin.ModelAdmin):
         return '(Нет изображения)'
     image_tag.short_description = 'Изображение'
 
-
     # Фильтр по времени готовки с тремя интервалами и подсчётом количества
     class CookingTimeFilter(admin.SimpleListFilter):
+
         title = 'Время готовки'
         parameter_name = 'cooking_time_bin'
 
@@ -263,13 +261,14 @@ class RecipeAdmin(admin.ModelAdmin):
             m = times[2 * len(times) // 3]
 
             count_fast = qs.filter(cooking_time__lt=n).count()
-            count_medium = qs.filter(cooking_time__gte=n, cooking_time__lt=m).count()
+            count_medium = qs.filter(
+                cooking_time__gte=n, cooking_time__lt=m).count()
             count_long = qs.filter(cooking_time__gte=m).count()
 
             return [
-                (f'fast', f'быстрее {n} мин ({count_fast})'),
-                (f'medium', f'быстрее {m} мин ({count_medium})'),
-                (f'long', f'долго ({count_long})'),
+                ('fast', f'быстрее {n} мин ({count_fast})'),
+                ('medium', f'быстрее {m} мин ({count_medium})'),
+                ('long', f'долго ({count_long})'),
             ]
 
         def queryset(self, request, queryset):
