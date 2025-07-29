@@ -90,6 +90,7 @@ SECRET_KEY=django-insecure-fi#^!#-3qp%ja0dhmf&=s$(v6f%t!*^f*jv2f500jpsr5f4nlk
 DEBUG=False
 ALLOWED_HOSTS=babybear.myddns.me,89.169.164.5,127.0.0.1,localhost
 USE_POSTGRESQL=True
+RECIPE_SHORT_LINK = 'babybear.myddns.me/recipes/'
 ```
 и еще 2 файла из папки foodgram/data
 - ingredients.json
