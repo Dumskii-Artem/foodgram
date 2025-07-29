@@ -1,6 +1,5 @@
 import os
 from io import BytesIO
-from dotenv import load_dotenv
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
@@ -11,6 +10,7 @@ from django_filters.filters import CharFilter
 from django_filters.filterset import FilterSet
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from djoser.views import UserViewSet
+from dotenv import load_dotenv
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
@@ -19,14 +19,12 @@ from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
-
 from api.filters import RecipeFilter
 from api.pagination import RecipePagination
 from api.serializers import (FollowedUserSerializer, IngredientSerializer,
                              RecipeReadSerializer, RecipeWriteSerializer,
                              ShortRecipeSerializer, TagSerializer,
                              UserWithSubscriptionSerializer)
-from food import constants as const
 from food.models import (Favorite, Follow, Ingredient, Recipe,
                          RecipeIngredient, ShoppingCartItem, Tag)
 from library.shopping_list import generate_shopping_list
