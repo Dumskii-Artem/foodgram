@@ -14,7 +14,9 @@
 
 ## Ссылки на проект
 
-* Сайт: [https://babybear.myddns.me/](https://babybear.myddns.me/)
+* [Сайт](https://babybear.myddns.me/)
+* [Админка](https://babybear.myddns.me/admin/)
+* [Дока к API сервера](https://babybear.myddns.me/api/)
 
 
 ## Исходный код
@@ -40,39 +42,16 @@ GitHub: [Dumskii-Artem](https://github.com/Dumskii-Artem/foodgram.git)
 * **Веб‑сервер** — Gunicorn + Nginx
 * **CI/CD** — GitHub Actions, деплой по SSH
 
-## Запуск сервера с докер контейнерами (CI/CD)
-
-В GitHub Actions настроены следующие шаги:
-
-1. Проверка кода линтером flake8
-2. Сборка фронтенда (`npm run build`)
-3. Сборка и запуск контейнеров Docker
-4. Деплой на сервер через SSH с использованием Docker
-5. Отправка сообщения в телеграмм
-
-### Для запуска этого процесса нужно руками сделать следующее
-- создать репозиторий на GitHub и аккаунт на DockerHub
-- заполучить сервер, на котором будет размещен сайт
-### добавить на GitHub Repository secrets
-Settings->Secrets and variables->Actions
-- DOCKER_PASSWORD - пароль на DockerHub
-- DOCKER_USERNAME - логин на DockerHub
-- HOST_IP - IP адрес вашего сервера, куда хотите поместить сайт
-- HOST_SSH_KEY - закрытый ключ (длинный) для подключения к вашему серверу
-- HOST_USER - логин на вашем сервере
-- SSH_PASSPHRASE - что нужно сказать, заходя на сервер - небольшая строка типа пароля
-- TELEGRAM_TO - строка вида 123456789
-- TELEGRAM_TOKEN - строка вида 7814787497:*****************-***************gk
-
 ### поместить на сервер файлы из папки server
 подключение к серверу по протоколу ssh (образец)
 ```
 ssh -i ~/.ssh/yp_16_sprint/yc-d-art-mail.dat yc-user@89.169.164.5
 ```
-файл default следует поместить в папку /etc/nginx/sites-enabled
+файл default следует поместить в папку /etc/nginx/sites-enabled,
+
 файл nginx.conf у меня лежит в папке /etc/nginx он у вас есть. в этом файле добавлены 1-2 последних строки.
 
-в папку 
+### в папку
 ```
 cd ~/foodgram/
 ```    
@@ -95,25 +74,26 @@ RECIPE_SHORT_LINK = 'babybear.myddns.me/recipes/'
 и еще 2 файла из папки foodgram/data
 - ingredients.json
 - tags.json
+
+команды для копирования:
 ```
 scp -i ~/.ssh/yp_16_sprint/yc-d-art-mail.dat  ./data/ingredients.json yc-user@89.169.164.5:/home/yc-user/foodgram/
 scp -i ~/.ssh/yp_16_sprint/yc-d-art-mail.dat  ./data/tags.json yc-user@89.169.164.5:/home/yc-user/foodgram/
 ```
-после этого смело пушим наш расчудесный проект на GitHub
-
-копируем файлы с данными внутрь контейнера
+после этого смело 
+### пушим наш расчудесный проект на GitHub 
+### копируем файлы с данными внутрь контейнера
 ```
 sudo docker cp ingredients.json foodgram-backend-1:/app/
 sudo docker cp tags.json foodgram-backend-1:/app/
 
 ```
-далее на удаленном сервере заходим в контейнер
+### на удаленном сервере заходим в контейнер
 ```
 sudo docker exec -it foodgram-backend-1 bash
 ```
 делаем миграции
 ```
-python manage.py makemigrations
 python manage.py migrate
 ```
 создаем администратора
@@ -122,11 +102,11 @@ python manage.py createsuperuser
 ```
 запускаем скрипты для заполнения базы
 ```
-python manage.py load_ingredients_json tags.json
+python manage.py load_ingredients_json ingredients.json
 python manage.py load_tags_json tags.json
 ```
-переходим по ссылке
-* Сайт: [https://babybear.myddns.me/](https://babybear.myddns.me/)
+### переходим по ссылке
+* [Кликаем сюда](https://babybear.myddns.me/)
 и радуемся!
 
 ## Локальный запуск Backend + Frontend
@@ -184,13 +164,11 @@ Windows: python manage.py createsuperuser
 Ubuntu: python3 manage.py runserver
 Windows: python manage.py runserver
 ```
-и зайти в админку http://127.0.0.1:8000/admin. 
+и [зайти в админку]( http://127.0.0.1:8000/admin)
 
-или http://127.0.0.1:8000/api/
+и [посмотреть документацию](http://127.0.0.1:8000/api/)
 
 Остановить сервер Ctrl+C. 
-
-Теперь можно загрузить коллекцию в Postman и запустить её. Возможно, Вам повезет и все тесты пройдут
 
 ### Документация API (доступна при запущенном backend)
 
@@ -212,18 +190,3 @@ Windows: python manage.py runserver
 npm start
 ```
 в браузере по умолчанию должна открыться страница http://localhost:3000 нашим проектом. Можно или вновь зарегистрироваться или зайти через админский аккаунт, который Вы уже создали
-
-
-
-
-
-# наследие высокоразвитых предков
-
-Находясь в папке infra, выполните команду docker-compose up.
-При выполнении этой команды контейнер frontend, описанный в docker-compose.yml, 
-подготовит файлы, необходимые для работы фронтенд-приложения, 
-а затем прекратит свою работу.
-
-По адресу http://localhost изучите фронтенд веб-приложения, 
-а по адресу http://localhost/api/docs/ — спецификацию API.
-

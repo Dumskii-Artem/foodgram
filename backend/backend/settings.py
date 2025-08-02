@@ -1,13 +1,9 @@
-# backend/settings.py
-
 import logging
 import os
 from pathlib import Path
 
 from dotenv import load_dotenv
 
-# работает только для локальной версии
-# на хосте данные попадают через окружение
 load_dotenv()
 
 logger = logging.getLogger(__name__)
@@ -19,8 +15,6 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'SECRET_KEY')
 DEBUG = (os.getenv('DEBUG') == 'True')
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
-# logger.info(f"ALLOWED_HOSTS: {ALLOWED_HOSTS}")
-# logger.info(f'USE_POSTGRESQL: {USE_POSTGRESQL}{type(USE_POSTGRESQL)}')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -73,7 +67,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-if (os.getenv('USE_POSTGRESQL', 'True') == 'True'):
+if os.getenv('USE_POSTGRESQL', 'True') == 'True':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -135,18 +129,13 @@ REST_FRAMEWORK = {
     ]
 }
 
-# logger.info(f'BASE_DIR is:"{BASE_DIR}"')
-
 MEDIA_URL = '/media/'
-# MEDIA_ROOT = '/app/media'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# logger.info(f'MEDIA_ROOT is:"{MEDIA_ROOT}"')
 
 DJOSER = {
     "SERIALIZERS": {
-        "user": "api.serializers.UserWithSubscriptionSerializer",
-        "current_user": "api.serializers.UserWithSubscriptionSerializer",
+        "user": "api.serializers.FoodgramUserSerializer",
+        "current_user": "api.serializers.FoodgramUserSerializer",
     },
     'USER_CREATE_PASSWORD_RETYPE': False,
     'PERMISSIONS': {

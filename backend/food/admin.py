@@ -10,68 +10,67 @@ from .models import (Favorite, Follow, Ingredient, Recipe, RecipeIngredient,
                      ShoppingCartItem, Tag, User)
 
 
-class HasSubscriptionsFilter(admin.SimpleListFilter):
+class HasRelatedObjectsFilter(admin.SimpleListFilter):
+    LOOKUP_CHOICES = [('yes', 'Да'), ('no', 'Нет')]
+
+    def lookups(self, request, model_admin):
+        return self.LOOKUP_CHOICES
+
+    def queryset(self, request, queryset):
+        if self.value() == 'yes':
+            return (queryset.
+                    filter(**{f'{self.related_name}__isnull': False})
+                    .distinct()
+                    )
+        if self.value() == 'no':
+            return queryset.filter(**{f'{self.related_name}__isnull': True})
+        return queryset
+
+
+class HasSubscriptionsFilter(HasRelatedObjectsFilter):
     title = 'Есть подписки'
     parameter_name = 'has_subscriptions'
-
-    def lookups(self, request, model_admin):
-        return [('yes', 'Да'), ('no', 'Нет')]
-
-    def queryset(self, request, queryset):
-        if self.value() == 'yes':
-            return queryset.filter(follower__isnull=False).distinct()
-        if self.value() == 'no':
-            return queryset.filter(follower__isnull=True)
-        return queryset
+    related_name = 'follower'
 
 
-class HasSubscribersFilter(admin.SimpleListFilter):
+class HasSubscribersFilter(HasRelatedObjectsFilter):
     title = 'Есть подписчики'
     parameter_name = 'has_subscribers'
-
-    def lookups(self, request, model_admin):
-        return [('yes', 'Да'), ('no', 'Нет')]
-
-    def queryset(self, request, queryset):
-        if self.value() == 'yes':
-            return queryset.filter(following__isnull=False).distinct()
-        if self.value() == 'no':
-            return queryset.filter(following__isnull=True)
-        return queryset
+    related_name = 'following'
 
 
-class HasRecipesFilter(admin.SimpleListFilter):
-    title = 'Есть рецепты'
-    parameter_name = 'has_recipes'
-
-    def lookups(self, request, model_admin):
-        return [('yes', 'Да'), ('no', 'Нет')]
-
-    def queryset(self, request, queryset):
-        if self.value() == 'yes':
-            return queryset.filter(recipes__isnull=False).distinct()
-        if self.value() == 'no':
-            return queryset.filter(recipes__isnull=True)
-        return queryset
-
-
-class HasFavoritesFilter(admin.SimpleListFilter):
+class HasFavoritesFilter(HasRelatedObjectsFilter):
     title = 'Есть избранное'
     parameter_name = 'has_favorites'
+    related_name = 'favorites'
 
-    def lookups(self, request, model_admin):
-        return [('yes', 'Да'), ('no', 'Нет')]
 
-    def queryset(self, request, queryset):
-        if self.value() == 'yes':
-            return queryset.filter(favorites__isnull=False).distinct()
-        if self.value() == 'no':
-            return queryset.filter(favorites__isnull=True)
-        return queryset
+class HasRecipesFilter(HasRelatedObjectsFilter):
+    title = 'Eсть в рецептах'
+    parameter_name = 'has_recipes'
+    related_name = 'recipes'
+
+
+class UserRecipesCountMixin:
+    @admin.display(description='Рецептов')
+    def recipe_count(self, obj):
+        return obj.recipes.count()
+
+
+class SubscriptionsCountMixin:
+    @admin.display(description='Подписок')
+    def following_count(self, user):
+        return user.follower_followes.count()
+
+    @admin.display(description='Подписчиков')
+    def followers_count(self, author):
+        return author.author_followes.count()
 
 
 @admin.register(User)
-class UserProfileAdmin(UserAdmin):
+class UserProfileAdmin(UserAdmin,
+                       UserRecipesCountMixin,
+                       SubscriptionsCountMixin):
     model = User
 
     list_display = (
@@ -95,26 +94,9 @@ class UserProfileAdmin(UserAdmin):
         HasSubscribersFilter,  # кто читает пользователя
     )
 
-    @staticmethod
-    def full_name(user):
+    @admin.display(description='Полное имя')
+    def full_name(self, user):
         return f'{user.first_name} {user.last_name}'
-
-    @staticmethod
-    def recipe_count(user):
-        return user.recipes.count()
-    recipe_count.short_description = 'Рецептов'
-
-    @staticmethod
-    def following_count(user):
-        return user.following.count()
-
-    following_count.short_description = 'Подписок'
-
-    @staticmethod
-    def followers_count(user):
-        return user.followers.count()
-
-    followers_count.short_description = 'Подписчиков'
 
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
@@ -156,35 +138,23 @@ class FollowAdmin(admin.ModelAdmin):
 
 
 class RecipesCountMixin:
+    list_display = ('recipes_count',)
+
     def recipes_count(self, obj):
         return obj.recipes.count()
     recipes_count.short_description = 'В рецептах'
 
 
 @admin.register(Tag)
-class TagAdmin(RecipesCountMixin, admin.ModelAdmin):
-    list_display = ('id', 'name', 'slug', 'recipes_count')
+class TagAdmin(admin.ModelAdmin, RecipesCountMixin):
+    list_display = ('id', 'name', 'slug', *RecipesCountMixin.list_display)
     search_fields = ('name', 'slug')
-
-
-class HasRecipesFilter(admin.SimpleListFilter):
-    title = 'есть в рецептах'
-    parameter_name = 'has_recipes'
-
-    def lookups(self, request, model_admin):
-        return [('yes', 'Есть'), ('no', 'Нет')]
-
-    def queryset(self, request, queryset):
-        if self.value() == 'yes':
-            return queryset.filter(recipes__isnull=False).distinct()
-        elif self.value() == 'no':
-            return queryset.filter(recipes__isnull=True)
-        return queryset
 
 
 @admin.register(Ingredient)
 class IngredientAdmin(RecipesCountMixin, admin.ModelAdmin):
-    list_display = ('id', 'name', 'measurement_unit', 'recipes_count')
+    list_display = ('id', 'name', 'measurement_unit',
+                    *RecipesCountMixin.list_display)
     search_fields = ('name', 'measurement_unit')
     list_filter = ('measurement_unit', HasRecipesFilter)
 
@@ -205,6 +175,55 @@ class RecipeIngredientInline(admin.TabularInline):
     extra = 1
 
 
+# Фильтр по времени готовки с тремя интервалами и подсчётом количества
+class CookingTimeFilter(admin.SimpleListFilter):
+    title = 'Время готовки'
+    parameter_name = 'cooking_time_bin'
+
+    def _range_filter(self, qs, bounds):
+        return qs.filter(cooking_time__range=bounds)
+
+    def lookups(self, request, model_admin):
+        qs = model_admin.get_queryset(request)
+        times = list(qs.values_list('cooking_time', flat=True))
+        if len(set(times)) < 3:
+            return []
+
+        times.sort()
+        self.n = times[len(times) // 3]
+        self.m = times[2 * len(times) // 3]
+        self.max_time = times[-1] + 1
+
+        return [
+            ('fast',
+             f'быстрее {self.n} мин '
+             f'({self._range_filter(qs, (0, self.n)).count()})'
+             ),
+            ('medium',
+             f'быстрее {self.m} мин '
+             f'({self._range_filter(qs, (self.n, self.m)).count()})'
+             ),
+            ('long',
+             f'долго '
+             f'({self._range_filter(qs, (self.m, self.max_time)).count()})'
+             ),
+        ]
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if not value or not hasattr(self, 'n') or not hasattr(self, 'm'):
+            return queryset
+
+        if value == 'fast':
+            return self._range_filter(queryset, (0, self.n))
+        elif value == 'medium':
+            return self._range_filter(queryset, (self.n, self.m))
+        elif value == 'long':
+            return self._range_filter(queryset, (self.m, self.max_time))
+
+        return queryset
+
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
@@ -218,86 +237,31 @@ class RecipeAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.annotate(
-            _favorites_count=Count('favorites', distinct=True))
+            _favorites_count=Count('favorite', distinct=True)
+        )
+        # return qs.annotate(
+        #     _favorites_count=Count('favorite_set', distinct=True))
 
-    def favorites_count(self, obj):
-        return obj._favorites_count
+    @admin.display(description='В избранном')
+    def favorites_count(self, recipe):
+        return recipe._favorites_count
 
-    favorites_count.short_description = 'В избранном'
+    @admin.display(description='Продукты')
+    def products_list(self, recipe):
+        return '<br>'.join([
+            f'{ri.ingredient.name} - '
+            f'{ri.amount} {ri.ingredient.measurement_unit}'
+            for ri in recipe.ingredients_in_recipe.all()])
 
-    def products_list(self, obj):
-        ingredients = obj.ingredients.all()
-        names = [ingredient.name for ingredient in ingredients]
-        return ', '.join(names)
-    products_list.short_description = 'Продукты'
-
-    def tags_list(self, obj):
-        tags = obj.tags.all()
-        names = [tag.name for tag in tags]
-        return ', '.join(names)
-    tags_list.short_description = 'Теги'
+    @admin.display(description='Теги')
+    def tags_list(self, recipe):
+        return '<br>'.join([tag.name for tag in recipe.tags.all()])
 
     @mark_safe
-    def image_tag(self, obj):
-        if obj.image:
-            return f'<img src="{obj.image.url}" style="height: 50px;"/>'
-        return '(Нет изображения)'
+    def image_tag(self, recipe):
+        if recipe.image:
+            return f'<img src="{recipe.image.url}" style="height: 50px;"/>'
+        return ''
     image_tag.short_description = 'Изображение'
-
-    # Фильтр по времени готовки с тремя интервалами и подсчётом количества
-    class CookingTimeFilter(admin.SimpleListFilter):
-
-        title = 'Время готовки'
-        parameter_name = 'cooking_time_bin'
-
-        def lookups(self, request, model_admin):
-            # Определяем пороги N и M
-            qs = model_admin.get_queryset(request)
-            times = list(qs.values_list('cooking_time', flat=True))
-            if not times:
-                return []
-            times.sort()
-            n = times[len(times) // 3]
-            m = times[2 * len(times) // 3]
-
-            count_fast = qs.filter(cooking_time__lt=n).count()
-            count_medium = qs.filter(
-                cooking_time__gte=n, cooking_time__lt=m).count()
-            count_long = qs.filter(cooking_time__gte=m).count()
-
-            return [
-                ('fast', f'быстрее {n} мин ({count_fast})'),
-                ('medium', f'быстрее {m} мин ({count_medium})'),
-                ('long', f'долго ({count_long})'),
-            ]
-
-        def queryset(self, request, queryset):
-            value = self.value()
-            if value == 'fast':
-                return queryset.filter(cooking_time__lt=self.get_n(request))
-            elif value == 'medium':
-                return queryset.filter(
-                    cooking_time__gte=self.get_n(request),
-                    cooking_time__lt=self.get_m(request)
-                )
-            elif value == 'long':
-                return queryset.filter(cooking_time__gte=self.get_m(request))
-            return queryset
-
-        def get_n(self, request):
-            qs = self.model_admin.get_queryset(request)
-            times = list(qs.values_list('cooking_time', flat=True))
-            times.sort()
-            return times[len(times) // 3] if times else 0
-
-        def get_m(self, request):
-            qs = self.model_admin.get_queryset(request)
-            times = list(qs.values_list('cooking_time', flat=True))
-            times.sort()
-            return times[2 * len(times) // 3] if times else 0
-
-        def __init__(self, request, params, model, model_admin):
-            super().__init__(request, params, model, model_admin)
-            self.model_admin = model_admin
 
     list_filter = ('author', CookingTimeFilter)

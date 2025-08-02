@@ -2,7 +2,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 
 from food import constants as const
 
@@ -17,20 +16,20 @@ class User(AbstractUser):
     email = models.EmailField(
         unique=True,
         max_length=const.USER_EMAIL_LENGTH,
-        verbose_name=_('Электронная почта'),
+        verbose_name='Электронная почта',
     )
     first_name = models.CharField(
         max_length=const.USER_FIRST_NAME_LENGTH,
-        verbose_name=_('Имя')
+        verbose_name='Имя'
     )
     last_name = models.CharField(
         max_length=const.USER_LAST_NAME_LENGTH,
-        verbose_name=_('Фамилия')
+        verbose_name='Фамилия'
     )
     username = models.CharField(
         max_length=const.USER_USERNAME_LENGTH,
         unique=True,
-        verbose_name=_('Имя пользователя'),
+        verbose_name='Логин',
         validators=[username_validator],
     )
     avatar = models.ImageField(
@@ -44,8 +43,8 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     class Meta:
-        verbose_name = _('Пользователь')
-        verbose_name_plural = _('Пользователи')
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
         ordering = ('username',)
 
     def __str__(self):
@@ -56,14 +55,14 @@ class Follow(models.Model):
     author = models.ForeignKey(
         User,
         # все пользователи, подписанные на этого автора
-        related_name='followers',
+        related_name='author_followes',
         on_delete=models.CASCADE,
         verbose_name='Автор',
     )
     follower = models.ForeignKey(
         User,
         # все авторы, на которых подписан этот пользователь
-        related_name='following',
+        related_name='follower_followes',
         on_delete=models.CASCADE,
         verbose_name='Подписчик',
     )
@@ -97,7 +96,7 @@ class Tag(models.Model):
     class Meta:
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
-        ordering = ['name']
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
@@ -110,7 +109,7 @@ class Ingredient(models.Model):
     )
     measurement_unit = models.CharField(
         max_length=const.INGREDIENT_MEASUREMENT_UNIT_LENGTH,
-        verbose_name='мера'
+        verbose_name='единица измерения'
     )
 
     class Meta:
@@ -132,7 +131,6 @@ class Recipe(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='recipes',
         verbose_name='Автор'
     )
     name = models.CharField(
@@ -153,7 +151,6 @@ class Recipe(models.Model):
     )
     tags = models.ManyToManyField(
         'Tag',
-        related_name='recipes'
     )
     ingredients = models.ManyToManyField(
         'Ingredient',
@@ -163,6 +160,8 @@ class Recipe(models.Model):
 
     class Meta:
         default_related_name = 'recipes'
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'
 
     def __str__(self):
         return self.name
@@ -182,13 +181,13 @@ class RecipeIngredient(models.Model):
         verbose_name='Продукт'
     )
     amount = models.PositiveSmallIntegerField(
-        verbose_name='Мера продукта',
+        verbose_name='Мера',
         help_text='Мера продукта в рецепте'
     )
 
     class Meta:
-        verbose_name = 'Мера продукта'
-        verbose_name_plural = 'Меры продукта'
+        verbose_name = 'Продукт в рецепте'
+        verbose_name_plural = 'Продукты в рецепте'
         constraints = [
             models.UniqueConstraint(
                 fields=['recipe', 'ingredient'],
@@ -223,38 +222,12 @@ class UserRecipeRelationBase(models.Model):
 
 
 class Favorite(UserRecipeRelationBase):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='favorites',
-        verbose_name='Пользователь'
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        related_name='favorites',
-        verbose_name='Рецепт'
-    )
-
-    class Meta:
+    class Meta(UserRecipeRelationBase.Meta):
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
 
 
 class ShoppingCartItem(UserRecipeRelationBase):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='shopping_carts',
-        verbose_name='Пользователь'
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        related_name='shopping_carts',
-        verbose_name='Рецепт'
-    )
-
-    class Meta:
+    class Meta(UserRecipeRelationBase.Meta):
         verbose_name = 'Элемент корзины'
         verbose_name_plural = 'Корзина покупок'
