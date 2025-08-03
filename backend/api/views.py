@@ -60,7 +60,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
 
-    # permission_classes = [IsAuthenticatedOrReadOnly]
     permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
 
     def get_queryset(self):
@@ -86,15 +85,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'], url_path='get-link')
     def get_short_link(self, request, pk=None):
-        # Просто проверим, что рецепт существует
         if not Recipe.objects.filter(pk=pk).exists():
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        relative_url = reverse('recipe-short-link', kwargs={'pk': pk})
-        short_link = request.build_absolute_uri(relative_url)
-
-        return Response({'short-link': short_link},
-                        status=status.HTTP_200_OK)
+            raise ValidationError(f"Рецепт с id={pk} не найден.")
+        return Response(
+            {'short-link': request.build_absolute_uri(
+                reverse('recipe-short-link', args=[pk])
+            )},
+            status=status.HTTP_200_OK
+        )
 
     @action(
         detail=False,
