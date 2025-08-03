@@ -3,7 +3,7 @@ import os
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Exists, OuterRef
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.timezone import now
@@ -30,15 +30,6 @@ from food.models import (Favorite, Follow, Ingredient, Recipe,
                          RecipeIngredient, ShoppingCartItem, Tag)
 
 User = get_user_model()
-
-
-def short_link_redirect_view(request, pk):
-    get_object_or_404(Recipe, pk=pk)
-    # frontend_url = f'http://localhost:3000/recipes/{pk}/'
-    # frontend_url = f'https://babybear.myddns.me/recipes/{pk}/'
-    # frontend_url = f'/recipes/{pk}/'
-    return HttpResponseRedirect(f'/recipes/{pk}/')
-
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()

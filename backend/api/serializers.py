@@ -143,14 +143,12 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     def create_ingredients(self, ingredients, recipe):
         RecipeIngredient.objects.bulk_create(
-            [
                 RecipeIngredient(
                     recipe=recipe,
                     ingredient_id=item['ingredient'].id,
                     amount=item['amount']
                 )
                 for item in ingredients
-            ]
         )
 
     def create(self, validated_data):
@@ -169,11 +167,11 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         ingredients_data = validated_data.pop('ingredients', None)
         tags_data = validated_data.pop('tags', None)
 
-        if ingredients_data is None:
-            raise ValidationError({'ingredients': 'Это поле обязательно.'})
-
-        if tags_data is None:
-            raise ValidationError({'tags': 'Это поле обязательно.'})
+        # if ingredients_data is None:
+        #     raise ValidationError({'ingredients': 'Это поле обязательно.'})
+        #
+        # if tags_data is None:
+        #     raise ValidationError({'tags': 'Это поле обязательно.'})
 
         instance.tags.set(tags_data)
         instance.ingredients_in_recipe.all().delete()
@@ -186,7 +184,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                 'Необходимо указать хотя бы один ингредиент.')
         duplicate_ids = {
             id_ for id_, count in
-            Counter([item['ingredient'].id for item in ingredients]).items()
+            Counter(item['ingredient'].id for item in ingredients).items()
             if count > 1
         }
         if not duplicate_ids:
@@ -205,7 +203,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
         duplicate_ids = {
             id_ for id_, count in
-            Counter([getattr(tag, 'id') for tag in tags]).items()
+            Counter(getattr(tag, 'id') for tag in tags).items()
             if count > 1
         }
         if not duplicate_ids:
@@ -225,24 +223,24 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
-class UserReadSerializer(serializers.ModelSerializer):
-    is_subscribed = serializers.SerializerMethodField()
-    avatar = serializers.ImageField(read_only=True)
+# class UserReadSerializer(serializers.ModelSerializer):
+#     is_subscribed = serializers.SerializerMethodField()
+#     avatar = serializers.ImageField(read_only=True)
+#
+#     class Meta:
+#         model = User
+#         fields = (
+#             'id',
+#             'email',
+#             'username',
+#             'first_name',
+#             'last_name',
+#             'is_subscribed',
+#             'avatar',
+#         )
 
-    class Meta:
-        model = User
-        fields = (
-            'id',
-            'email',
-            'username',
-            'first_name',
-            'last_name',
-            'is_subscribed',
-            'avatar',
-        )
 
-
-class SecondUserSerializer(DjoserUserSerializer):
+class UserSerializer(DjoserUserSerializer):
     is_subscribed = serializers.SerializerMethodField()
     # avatar = serializers.ImageField(read_only=True)
 
@@ -259,7 +257,7 @@ class SecondUserSerializer(DjoserUserSerializer):
         read_only_fields = fields
 
 
-class FollowedUserSerializer(SecondUserSerializer):
+class FollowedUserSerializer(UserSerializer):
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.IntegerField(
         source='recipes.count',
@@ -268,7 +266,7 @@ class FollowedUserSerializer(SecondUserSerializer):
 
     class Meta:
         model = User
-        fields = (*SecondUserSerializer.Meta.fields,
+        fields = (*UserSerializer.Meta.fields,
                   'recipes', 'recipes_count')
         read_only_fields = fields
 

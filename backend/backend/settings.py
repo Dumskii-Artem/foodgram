@@ -67,7 +67,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-if os.getenv('USE_POSTGRESQL', 'True') == 'True':
+if os.getenv('USE_SQLITE', 'False') == 'False':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
