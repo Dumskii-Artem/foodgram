@@ -56,8 +56,7 @@ ssh -i ~/.ssh/yp_16_sprint/yc-d-art-mail.dat yc-user@89.169.164.5
 cd ~/foodgram/
 ```    
 нужно поместить файлы 
-- .env 
-у меня он такой
+- .env (пример для копирования)
 ```
 POSTGRES_USER=любой_логин
 POSTGRES_PASSWORD=любой_пароль
@@ -71,21 +70,7 @@ ALLOWED_HOSTS=babybear.myddns.me,89.169.164.5,127.0.0.1,localhost
 USE_POSTGRESQL=True
 RECIPE_SHORT_LINK = 'babybear.myddns.me/recipes/'
 ```
-и еще 2 файла из папки foodgram/data
-- ingredients.json
-- tags.json
 
-команды для копирования:
-```
-scp -i ~/.ssh/yp_16_sprint/yc-d-art-mail.dat  ./data/ingredients.json yc-user@89.169.164.5:/home/yc-user/foodgram/
-scp -i ~/.ssh/yp_16_sprint/yc-d-art-mail.dat  ./data/tags.json yc-user@89.169.164.5:/home/yc-user/foodgram/
-```
-после этого смело 
-### пушим наш расчудесный проект на GitHub 
-### копируем файлы с данными внутрь контейнера
-```
-sudo docker cp ingredients.json foodgram-backend-1:/app/
-sudo docker cp tags.json foodgram-backend-1:/app/
 
 ```
 ### на удаленном сервере заходим в контейнер
@@ -106,8 +91,7 @@ python manage.py load_ingredients_json ingredients.json
 python manage.py load_tags_json tags.json
 ```
 ### переходим по ссылке
-* [Кликаем сюда](https://babybear.myddns.me/)
-и радуемся!
+* [Адрес сервера](https://babybear.myddns.me/)
 
 ## Локальный запуск Backend + Frontend
 
@@ -133,7 +117,7 @@ Ubuntu: source env/bin/activate
 Windows: source ./env/Scripts/activate
     или ./env/Scripts/activate
 ```
-Вот так написать:
+Выполнить:
 ```
 Ubuntu: python3 -m pip install --upgrade pip
 Windows: python -m pip install --upgrade pip
@@ -149,8 +133,13 @@ Windows: python manage.py migrate
 ```
 Заполнить данными справочники 
 ```
+Ubuntu:
+python3 manage.py load_ingredients_json ../data/ingredients.json
+python3 manage.py load_tags_json ../data/tags.json
+Windows:
 python manage.py load_ingredients_json ../data/ingredients.json
 python manage.py load_tags_json ../data/tags.json
+
 ```
 
 Создать администратора. нужно аккуратно заполнить все поля. они обязательные, почта любая никто проверять не будет
@@ -164,9 +153,9 @@ Windows: python manage.py createsuperuser
 Ubuntu: python3 manage.py runserver
 Windows: python manage.py runserver
 ```
-и [зайти в админку]( http://127.0.0.1:8000/admin)
+и [Админка]( http://127.0.0.1:8000/admin)
 
-и [посмотреть документацию](http://127.0.0.1:8000/api/)
+и [Документация к API сервера](http://127.0.0.1:8000/api/docs)
 
 Остановить сервер Ctrl+C. 
 
@@ -178,15 +167,12 @@ Windows: python manage.py runserver
 
 ### Запуск Frontend
 
-Чтобы увидеть работу фронтенда, нужно одновременно запустить фронтенд и бэкенд. Для этого можно испрользовать, например, 2 экземпляра VSCode. Итак, запустили сервер backend и в другом VSCode выполняем
+Находясь в папке infra, выполните команду docker-compose up.
+При выполнении этой команды контейнер frontend, описанный в docker-compose.yml, 
+подготовит файлы, необходимые для работы фронтенд-приложения, 
+а затем прекратит свою работу.
 
-```
- npm install --legacy-peer-deps
-```
-очень много ругается, но это не должно пугать. в крайнем случае подключите к решению знатоков из ChatGPT
+По адресу [http://localhost]http://localhost изучите фронтенд веб-приложения, 
 
-Далее
-```
-npm start
-```
-в браузере по умолчанию должна открыться страница http://localhost:3000 нашим проектом. Можно или вновь зарегистрироваться или зайти через админский аккаунт, который Вы уже создали
+а по адресу [http://localhost/api/docs/]http://localhost/api/docs/ — спецификацию API.
+
