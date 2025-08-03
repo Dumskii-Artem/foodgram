@@ -1,10 +1,8 @@
-# backend/api/serializers.py
 from collections import Counter
 
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserSerializer as DjoserUserSerializer
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 
 from food.constants import INGREDIENT_AMOUNT_MIN_VALUE, RECIPE_MIN_COOKING_TIME
 from food.models import (Favorite, Follow, Ingredient, Recipe,
@@ -143,12 +141,12 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     def create_ingredients(self, ingredients, recipe):
         RecipeIngredient.objects.bulk_create(
-                RecipeIngredient(
-                    recipe=recipe,
-                    ingredient_id=item['ingredient'].id,
-                    amount=item['amount']
-                )
-                for item in ingredients
+            RecipeIngredient(
+                recipe=recipe,
+                ingredient_id=item['ingredient'].id,
+                amount=item['amount']
+            )
+            for item in ingredients
         )
 
     def create(self, validated_data):

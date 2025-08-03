@@ -31,6 +31,7 @@ from food.models import (Favorite, Follow, Ingredient, Recipe,
 
 User = get_user_model()
 
+
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
