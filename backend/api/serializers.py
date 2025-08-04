@@ -90,17 +90,17 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
     def check_user_status(self, recipe, model_class):
         request = self.context.get('request')
-        print('check_user_status', recipe, model_class, request)
-        if not request or request.user.is_anonymous:
-            return False
-        return model_class.objects.filter(user=request.user,
-                                          recipe=recipe).exists()
+        return (
+            request
+            and not request.user.is_anonymous
+            and model_class.objects.filter(user=request.user,
+                                           recipe=recipe).exists()
+        )
 
     def get_is_favorited(self, recipe):
         return self.check_user_status(recipe, Favorite)
 
     def get_is_in_shopping_cart(self, recipe):
-        print('get_is_in_shopping_cart', recipe)
         return self.check_user_status(recipe, ShoppingCartItem)
 
 
@@ -139,8 +139,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         ).data
 
     def create_ingredients(self, ingredients, recipe):
-        if not ingredients:
-            raise serializers.ValidationError('Ингредиенты обязательны.')
         RecipeIngredient.objects.bulk_create(
             RecipeIngredient(
                 recipe=recipe,

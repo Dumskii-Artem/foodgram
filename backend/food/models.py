@@ -200,13 +200,13 @@ class UserRecipeRelationBase(models.Model):
         User,
         on_delete=models.CASCADE,
         verbose_name='Пользователь',
-        related_name='%(class)s_user_relations'
+        related_name='%(class)ss'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
         verbose_name='Рецепт',
-        related_name='%(class)s_recipe_relations'
+        related_name='%(class)ss'
     )
 
     class Meta:

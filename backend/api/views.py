@@ -141,7 +141,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request):
         user = request.user
         recipes = Recipe.objects.filter(
-            shoppingcartitem_recipe_relations__user=user)
+            shoppingcartitems__user=user)
 
         content = render_to_string('shopping_list.txt', {
             'user': user,
@@ -161,24 +161,34 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return FileResponse(
             content, as_attachment=True, filename='shopping_list.txt')
 
-    def handle_add_or_remove(self, model, user, recipe_id, request):
+    def handle_add_or_remove(self, model, recipe_id, request):
         if request.method not in {'POST', 'DELETE'}:
             return Response(
-                {'error': 'Метод не поддерживается'},
+                {'error': f'Метод {request.method} не поддерживается'},
                 status=status.HTTP_405_METHOD_NOT_ALLOWED
             )
 
         if request.method == 'DELETE':
-            obj = get_object_or_404(model, user=user, recipe_id=recipe_id)
-            obj.delete()
+            get_object_or_404(
+                model,
+                user=request.user,
+                recipe_id=recipe_id
+            ).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         # if request.method == 'POST':
         recipe = get_object_or_404(Recipe, pk=recipe_id)
-        obj, created = model.objects.get_or_create(user=user,
+        obj, created = model.objects.get_or_create(user=request.user,
                                                    recipe=recipe)
         if not created:
-            raise ValidationError(f'Рецепт с id={recipe.id} уже добавлен.')
+            location = (
+                'избранное' if model == Favorite else
+                'корзину покупок' if model == ShoppingCartItem else
+                'список'
+            )
+            raise ValidationError(
+                f'Рецепт с id={recipe.id} '
+                f'уже добавлен в {location}.')
 
         return Response(
             ShortRecipeSerializer(
@@ -193,7 +203,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return self.handle_add_or_remove(
             model=ShoppingCartItem,
             request=request,
-            user=request.user,
             recipe_id=pk
         )
 
@@ -204,7 +213,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             model=Favorite,
             recipe_id=pk,
             request=request,
-            user=request.user
         )
 
 

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.db.models import Count
-from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
 from .models import (Favorite, Follow, Ingredient, Recipe, RecipeIngredient,
                      ShoppingCartItem, Tag, User)
@@ -117,10 +117,9 @@ class UserProfileAdmin(UserAdmin, RecipesCountMixin,):
     @admin.display(description='Аватар')
     def avatar_preview(self, user):
         if user.avatar:
-            return format_html(
-                '<img src=\'{}\' width=\'40\' height=\'40\' '
-                'style=\'object-fit: cover; border-radius: 4px;\' />',
-                user.avatar.url
+            return mark_safe(
+                f'<img src="{user.avatar.url}" width="40" height="40" '
+                f'style="object-fit: cover; border-radius: 4px;" />'
             )
         return '-'
 
@@ -167,9 +166,8 @@ class CookingTimeFilter(admin.SimpleListFilter):
     title = 'Время готовки'
     parameter_name = 'cooking_time_bin'
 
-    def _range_filter(self, bounds=None):
-        if self.recipes is None:
-            self.recipes = Recipe.objects.all()
+    def _range_filter(self, bounds, recipes=None):
+        self.recipes = recipes or Recipe.objects.all()
         return self.recipes.filter(cooking_time__range=bounds)
 
     def lookups(self, request, model_admin):
@@ -209,8 +207,10 @@ class CookingTimeFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         selected = self.value()
         if selected in self.thresholds:
-            return self._range_filter(queryset,
-                                      self.thresholds[selected]['range'])
+            return self._range_filter(
+                bounds=self.thresholds[selected]['range'],
+                queryset=queryset
+            )
         return queryset
 
 
@@ -228,7 +228,7 @@ class RecipeAdmin(admin.ModelAdmin):
         qs = super().get_queryset(request)
         return qs.annotate(
             _favorites_count=Count(
-                'favorite_recipe_relations', distinct=True)
+                'favorites', distinct=True)
         )
 
     @admin.display(description='В избранном')
