@@ -24,8 +24,15 @@ class BaseLoadCommand(BaseCommand):
         file_path = options['file_path']
         try:
             with open(file_path, encoding='utf-8') as file:
-                self.model.objects.bulk_create(
-                    self.model(**item) for item in json.load(file)
+                created_objects = self.model.objects.bulk_create(
+                    (self.model(**item) for item in json.load(file)),
+                    ignore_conflicts=True
+                )
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        f'Добавлено {len(created_objects)}'
+                        f' объектов из файла "{file_path}"'
+                    )
                 )
         except Exception as e:
             self.stderr.write(self.style.ERROR(

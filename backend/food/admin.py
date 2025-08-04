@@ -1,10 +1,7 @@
-# backend/food/admin.py
-
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.db.models import Count
 from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 
 from .models import (Favorite, Follow, Ingredient, Recipe, RecipeIngredient,
                      ShoppingCartItem, Tag, User)
@@ -51,26 +48,16 @@ class HasRecipesFilter(HasRelatedObjectsFilter):
     related_name = 'recipes'
 
 
-class UserRecipesCountMixin:
-    @admin.display(description='Рецептов')
-    def recipe_count(self, obj):
-        return obj.recipes.count()
+class RecipesCountMixin:
+    list_display = ('recipes_count',)
 
-
-class SubscriptionsCountMixin:
-    @admin.display(description='Подписок')
-    def following_count(self, user):
-        return user.follower_followes.count()
-
-    @admin.display(description='Подписчиков')
-    def followers_count(self, author):
-        return author.author_followes.count()
+    @admin.display(description='В рецептах')
+    def recipes_count(self, user):
+        return user.recipes.count()
 
 
 @admin.register(User)
-class UserProfileAdmin(UserAdmin,
-                       UserRecipesCountMixin,
-                       SubscriptionsCountMixin):
+class UserProfileAdmin(UserAdmin, RecipesCountMixin,):
     model = User
 
     list_display = (
@@ -79,10 +66,10 @@ class UserProfileAdmin(UserAdmin,
         'full_name',
         'email',
         'avatar_preview',
-        'recipe_count',
         'following_count',
         'followers_count',
         'is_staff',
+        *RecipesCountMixin.list_display,
     )
     list_filter = (
         'is_staff',
@@ -93,6 +80,14 @@ class UserProfileAdmin(UserAdmin,
         HasSubscriptionsFilter,  # кого читает пользователь
         HasSubscribersFilter,  # кто читает пользователя
     )
+
+    @admin.display(description='Подписок')
+    def following_count(self, user):
+        return user.follower_followes.count()
+
+    @admin.display(description='Подписчиков')
+    def followers_count(self, author):
+        return author.author_followes.count()
 
     @admin.display(description='Полное имя')
     def full_name(self, user):
@@ -137,14 +132,6 @@ class FollowAdmin(admin.ModelAdmin):
     list_filter = ('follower', 'author')
 
 
-class RecipesCountMixin:
-    list_display = ('recipes_count',)
-
-    def recipes_count(self, obj):
-        return obj.recipes.count()
-    recipes_count.short_description = 'В рецептах'
-
-
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin, RecipesCountMixin):
     list_display = ('id', 'name', 'slug', *RecipesCountMixin.list_display)
@@ -180,47 +167,50 @@ class CookingTimeFilter(admin.SimpleListFilter):
     title = 'Время готовки'
     parameter_name = 'cooking_time_bin'
 
-    def _range_filter(self, qs, bounds):
-        return qs.filter(cooking_time__range=bounds)
+    def _range_filter(self, bounds=None):
+        if self.recipes is None:
+            self.recipes = Recipe.objects.all()
+        return self.recipes.filter(cooking_time__range=bounds)
 
     def lookups(self, request, model_admin):
-        qs = model_admin.get_queryset(request)
-        times = list(qs.values_list('cooking_time', flat=True))
+        self.recipes = model_admin.get_queryset(request)
+        times = list(self.recipes.values_list('cooking_time', flat=True))
         if len(set(times)) < 3:
             return []
 
         times.sort()
-        self.n = times[len(times) // 3]
-        self.m = times[2 * len(times) // 3]
-        self.max_time = times[-1] + 1
+        short_time_max = times[len(times) // 3]
+        medium_time_max = times[2 * len(times) // 3]
+
+        self.thresholds = {
+            'fast': {
+                'range': (0, short_time_max),
+                'label': f'быстрее {short_time_max} мин',
+            },
+            'medium': {
+                'range': (short_time_max, medium_time_max),
+                'label': f'быстрее {medium_time_max} мин',
+            },
+            'long': {
+                'range': (medium_time_max, times[-1] + 1),
+                'label': 'долго',
+            },
+        }
 
         return [
-            ('fast',
-             f'быстрее {self.n} мин '
-             f'({self._range_filter(qs, (0, self.n)).count()})'
-             ),
-            ('medium',
-             f'быстрее {self.m} мин '
-             f'({self._range_filter(qs, (self.n, self.m)).count()})'
-             ),
-            ('long',
-             f'долго '
-             f'({self._range_filter(qs, (self.m, self.max_time)).count()})'
-             ),
+            (
+                key,
+                f"{value['label']} "
+                f"({self._range_filter(value['range']).count()})"
+            )
+            for key, value in self.thresholds.items()
         ]
 
     def queryset(self, request, queryset):
-        value = self.value()
-        if not value or not hasattr(self, 'n') or not hasattr(self, 'm'):
-            return queryset
-
-        if value == 'fast':
-            return self._range_filter(queryset, (0, self.n))
-        elif value == 'medium':
-            return self._range_filter(queryset, (self.n, self.m))
-        elif value == 'long':
-            return self._range_filter(queryset, (self.m, self.max_time))
-
+        selected = self.value()
+        if selected in self.thresholds:
+            return self._range_filter(queryset,
+                                      self.thresholds[selected]['range'])
         return queryset
 
 
@@ -237,10 +227,9 @@ class RecipeAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.annotate(
-            _favorites_count=Count('favorite', distinct=True)
+            _favorites_count=Count(
+                'favorite_recipe_relations', distinct=True)
         )
-        # return qs.annotate(
-        #     _favorites_count=Count('favorite_set', distinct=True))
 
     @admin.display(description='В избранном')
     def favorites_count(self, recipe):
@@ -257,11 +246,10 @@ class RecipeAdmin(admin.ModelAdmin):
     def tags_list(self, recipe):
         return '<br>'.join([tag.name for tag in recipe.tags.all()])
 
-    @mark_safe
+    @admin.display(description='Изображение')
     def image_tag(self, recipe):
         if recipe.image:
             return f'<img src="{recipe.image.url}" style="height: 50px;"/>'
         return ''
-    image_tag.short_description = 'Изображение'
 
     list_filter = ('author', CookingTimeFilter)

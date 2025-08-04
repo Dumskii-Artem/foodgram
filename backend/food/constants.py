@@ -10,4 +10,4 @@ USER_LAST_NAME_LENGTH = 150
 USER_USERNAME_LENGTH = 150
 
 RECIPE_MIN_COOKING_TIME = 1  # in minutes
-INGREDIENT_AMOUNT_MIN_VALUE = 1  # minimum amount of ingredient in a recipe
+INGREDIENT_MIN_AMOUNT = 1  # minimum amount of ingredient in a recipe

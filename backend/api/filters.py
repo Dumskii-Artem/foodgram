@@ -25,11 +25,11 @@ class RecipeFilter(filters.FilterSet):
         user = self.request.user
         if value and not user.is_anonymous:
 
-            return recipes.filter(favorites__user=user)
+            return recipes.filter(favorite_recipe_relations__user=user)
         return recipes
 
     def filter_is_in_shopping_cart(self, recipes, name, value):
         user = self.request.user
         if value and not user.is_anonymous:
-            return recipes.filter(shoppingcartitem__user=user)
+            return recipes.filter(shoppingcartitem_recipe_relations__user=user)
         return recipes

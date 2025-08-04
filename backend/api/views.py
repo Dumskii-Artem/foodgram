@@ -3,7 +3,7 @@ import os
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Exists, OuterRef
-from django.http import HttpResponse
+from django.http import FileResponse
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.timezone import now
@@ -141,48 +141,51 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request):
         user = request.user
         recipes = Recipe.objects.filter(
-            id__in=ShoppingCartItem.objects.filter(user=user).values_list(
-                'recipe_id', flat=True)
-        )
+            shoppingcartitem_recipe_relations__user=user)
 
         content = render_to_string('shopping_list.txt', {
             'user': user,
             'date': now().date(),
             'ingredients': (
-                RecipeIngredient.objects
-                .filter(recipe__in=recipes)
-                .values('ingredient__name', 'ingredient__measurement_unit')
-                .annotate(total_amount=models.Sum('amount'))
-                .order_by('ingredient__name')
+                RecipeIngredient.objects.filter(
+                    recipe__in=recipes
+                ).values(
+                    'ingredient__name', 'ingredient__measurement_unit'
+                ).annotate(
+                    total_amount=models.Sum('amount')
+                ).order_by('ingredient__name')
             ),
             'recipes': recipes,
         })
 
-        response = HttpResponse(content, content_type='text/plain')
-        response[
-            'Content-Disposition'] = 'attachment; filename="shopping_list.txt"'
-        return response
+        return FileResponse(
+            content, as_attachment=True, filename='shopping_list.txt')
 
     def handle_add_or_remove(self, model, user, recipe_id, request):
+        if request.method not in {'POST', 'DELETE'}:
+            return Response(
+                {'error': 'Метод не поддерживается'},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED
+            )
 
-        if request.method == 'POST':
-            recipe = get_object_or_404(Recipe, pk=recipe_id)
-            obj, created = model.objects.get_or_create(user=user,
-                                                       recipe=recipe)
-            if not created:
-                return Response({'error': 'Объект уже существует'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            serializer = ShortRecipeSerializer(recipe,
-                                               context={'request': request})
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        elif request.method == 'DELETE':
+        if request.method == 'DELETE':
             obj = get_object_or_404(model, user=user, recipe_id=recipe_id)
             obj.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-        # print('Метод не поддерживается')
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        # if request.method == 'POST':
+        recipe = get_object_or_404(Recipe, pk=recipe_id)
+        obj, created = model.objects.get_or_create(user=user,
+                                                   recipe=recipe)
+        if not created:
+            raise ValidationError(f'Рецепт с id={recipe.id} уже добавлен.')
+
+        return Response(
+            ShortRecipeSerializer(
+                recipe,
+                context={'request': request}
+            ).data,
+            status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
@@ -276,8 +279,8 @@ class UserWithSubscriptionViewSet(UserViewSet):
         if user.id == author.id:
             raise ValidationError('Нельзя подписаться на самого себя')
 
-        obj, created = Follow.objects.get_or_create(follower=user,
-                                                    author=author)
+        _, created = Follow.objects.get_or_create(
+            follower=user, author=author)
         if not created:
             raise ValidationError(
                 f'Вы уже подписаны на пользователя {author.username}')
@@ -296,8 +299,10 @@ class UserWithSubscriptionViewSet(UserViewSet):
             .values_list('author__id', flat=True)
         )
         paginator = RecipePagination()
-        page = paginator.paginate_queryset(authors, request)
-        serializer = FollowedUserSerializer(
-            page, many=True, context={'request': request}
+        return paginator.get_paginated_response(
+            FollowedUserSerializer(
+                paginator.paginate_queryset(authors, request),
+                many=True,
+                context={'request': request}
+            ).data
         )
-        return paginator.get_paginated_response(serializer.data)

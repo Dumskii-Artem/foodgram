@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from djoser.serializers import UserSerializer as DjoserUserSerializer
 from rest_framework import serializers
 
-from food.constants import INGREDIENT_AMOUNT_MIN_VALUE, RECIPE_MIN_COOKING_TIME
+from food.constants import INGREDIENT_MIN_AMOUNT, RECIPE_MIN_COOKING_TIME
 from food.models import (Favorite, Follow, Ingredient, Recipe,
                          RecipeIngredient, ShoppingCartItem, Tag)
 from library.base64ImageField import Base64ImageField
@@ -61,7 +61,7 @@ class RecipeIngredientWriteSerializer(serializers.ModelSerializer):
         source='ingredient'
     )
     amount = serializers.IntegerField(
-        min_value=INGREDIENT_AMOUNT_MIN_VALUE,
+        min_value=INGREDIENT_MIN_AMOUNT,
     )
 
     class Meta:
@@ -89,19 +89,18 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
     def check_user_status(self, recipe, model_class):
-        user = self.context.get('request')
-        return (
-            user
-            and user.user.is_authenticated
-            and model_class.objects.filter(
-                user=user.user, recipe=recipe
-            ).exists()
-        )
+        request = self.context.get('request')
+        print('check_user_status', recipe, model_class, request)
+        if not request or request.user.is_anonymous:
+            return False
+        return model_class.objects.filter(user=request.user,
+                                          recipe=recipe).exists()
 
     def get_is_favorited(self, recipe):
         return self.check_user_status(recipe, Favorite)
 
     def get_is_in_shopping_cart(self, recipe):
+        print('get_is_in_shopping_cart', recipe)
         return self.check_user_status(recipe, ShoppingCartItem)
 
 
@@ -140,6 +139,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         ).data
 
     def create_ingredients(self, ingredients, recipe):
+        if not ingredients:
+            raise serializers.ValidationError('Ингредиенты обязательны.')
         RecipeIngredient.objects.bulk_create(
             RecipeIngredient(
                 recipe=recipe,
@@ -162,14 +163,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
-        ingredients_data = validated_data.pop('ingredients', None)
-        tags_data = validated_data.pop('tags', None)
-
-        # if ingredients_data is None:
-        #     raise ValidationError({'ingredients': 'Это поле обязательно.'})
-        #
-        # if tags_data is None:
-        #     raise ValidationError({'tags': 'Это поле обязательно.'})
+        ingredients_data = validated_data.pop('ingredients', [])
+        tags_data = validated_data.pop('tags', [])
 
         instance.tags.set(tags_data)
         instance.ingredients_in_recipe.all().delete()
@@ -213,6 +208,19 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             f'Теги не должны повторяться: {names}.'
         )
 
+    def validate(self, data):
+        request_method = self.context['request'].method
+
+        if request_method in ('POST', 'PATCH'):
+            if 'ingredients' not in data:
+                raise serializers.ValidationError(
+                    {'ingredients': 'Это поле обязательно.'})
+            if 'tags' not in data:
+                raise serializers.ValidationError(
+                    {'tags': 'Это поле обязательно.'})
+
+        return data
+
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -221,26 +229,8 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
-# class UserReadSerializer(serializers.ModelSerializer):
-#     is_subscribed = serializers.SerializerMethodField()
-#     avatar = serializers.ImageField(read_only=True)
-#
-#     class Meta:
-#         model = User
-#         fields = (
-#             'id',
-#             'email',
-#             'username',
-#             'first_name',
-#             'last_name',
-#             'is_subscribed',
-#             'avatar',
-#         )
-
-
 class UserSerializer(DjoserUserSerializer):
     is_subscribed = serializers.SerializerMethodField()
-    # avatar = serializers.ImageField(read_only=True)
 
     def get_is_subscribed(self, followed_user):
         user = self.context['request'].user
