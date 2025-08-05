@@ -3,7 +3,6 @@ import os
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Exists, OuterRef
-from django.db.models.functions import Lower
 from django.http import FileResponse
 from django.template.loader import render_to_string
 from django.urls import reverse

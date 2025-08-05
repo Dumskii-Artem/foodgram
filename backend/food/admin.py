@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import Group
 from django.db.models import Count
 from django.utils.safestring import mark_safe
-from django.contrib.auth.models import Group
 
 from .models import (Favorite, Follow, Ingredient, Recipe, RecipeIngredient,
                      ShoppingCartItem, Tag, User)
@@ -243,7 +243,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
     @admin.display(description='Продукты')
     def products_list(self, recipe):
-        return mark_safe( '<br>'.join([
+        return mark_safe('<br>'.join([
             f'{ri.ingredient.name} - '
             f'{ri.amount} {ri.ingredient.measurement_unit}'
             for ri in recipe.ingredients_in_recipe.all()])
@@ -260,5 +260,3 @@ class RecipeAdmin(admin.ModelAdmin):
             f'style="height: 50px; object-fit: cover; border-radius: 4px;" />'
         )
         return ''
-
-
