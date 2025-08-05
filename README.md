@@ -16,7 +16,7 @@
 
 * [Сайт](https://babybear.myddns.me/)
 * [Админка](https://babybear.myddns.me/admin/)
-* [Дока к API сервера](https://babybear.myddns.me/api/)
+* [Дока к API сервера](https://babybear.myddns.me/api/docs/)
 
 
 ## Исходный код
@@ -170,7 +170,7 @@ Windows: python manage.py runserver
 подготовит файлы, необходимые для работы фронтенд-приложения, 
 а затем прекратит свою работу.
 
-По адресу [http://localhost]http://localhost изучите фронтенд веб-приложения, 
+По адресу [http://localhost](http://localhost) изучите фронтенд веб-приложения, 
 
-а по адресу [http://localhost/api/docs/]http://localhost/api/docs/ — спецификацию API.
+а по адресу [http://localhost/api/docs/](http://localhost/api/docs/) — спецификацию API.
 
