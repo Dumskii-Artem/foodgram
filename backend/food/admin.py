@@ -167,8 +167,11 @@ class CookingTimeFilter(admin.SimpleListFilter):
     parameter_name = 'cooking_time_bin'
 
     def _range_filter(self, bounds, recipes=None):
-        self.recipes = recipes or Recipe.objects.all()
-        return self.recipes.filter(cooking_time__range=bounds)
+        return (
+                recipes
+                or self.recipes
+                or Recipe.objects.all()
+        ).filter(cooking_time__range=bounds)
 
     def lookups(self, request, model_admin):
         self.recipes = model_admin.get_queryset(request)

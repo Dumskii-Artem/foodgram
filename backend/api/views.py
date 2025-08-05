@@ -181,14 +181,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         obj, created = model.objects.get_or_create(user=request.user,
                                                    recipe=recipe)
         if not created:
-            location = (
-                'избранное' if model == Favorite else
-                'корзину покупок' if model == ShoppingCartItem else
-                'список'
-            )
             raise ValidationError(
                 f'Рецепт с id={recipe.id} '
-                f'уже добавлен в {location}.')
+                f'уже добавлен в {model._meta.verbose_name_plural.lower()}.')
 
         return Response(
             ShortRecipeSerializer(
