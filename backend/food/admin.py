@@ -168,9 +168,9 @@ class CookingTimeFilter(admin.SimpleListFilter):
 
     def _range_filter(self, bounds, recipes=None):
         return (
-                recipes
-                or self.recipes
-                or Recipe.objects.all()
+            recipes
+            or self.recipes
+            or Recipe.objects.all()
         ).filter(cooking_time__range=bounds)
 
     def lookups(self, request, model_admin):
