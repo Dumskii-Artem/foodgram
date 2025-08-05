@@ -71,8 +71,6 @@ USE_POSTGRESQL=True
 RECIPE_SHORT_LINK = 'babybear.myddns.me/recipes/'
 ```
 
-
-```
 ### на удаленном сервере заходим в контейнер
 ```
 sudo docker exec -it foodgram-backend-1 bash
