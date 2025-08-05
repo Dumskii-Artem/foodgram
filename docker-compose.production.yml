@@ -30,6 +30,7 @@ services:
     volumes:
       - static_volume:/staticfiles/
       - media_volume:/app/media
+      - ./docs:/docs
     # перенаправление всех запросов с порта 8000 хоста
     # на порт 80 контейнера
     ports:

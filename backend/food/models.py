@@ -47,7 +47,7 @@ class User(AbstractUser):
         ordering = ('username',)
 
     def __str__(self):
-        return self.email
+        return self.username
 
 
 class Follow(models.Model):
@@ -146,7 +146,7 @@ class Recipe(models.Model):
     )
     cooking_time = models.PositiveIntegerField(
         validators=[MinValueValidator(const.RECIPE_MIN_COOKING_TIME)],
-        verbose_name='Время приготовления (мин)'
+        verbose_name='Время (мин)'
     )
     tags = models.ManyToManyField(
         'Tag',
@@ -161,6 +161,7 @@ class Recipe(models.Model):
         default_related_name = 'recipes'
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
+        ordering = ['-id']
 
     def __str__(self):
         return self.name

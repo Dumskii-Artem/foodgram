@@ -3,6 +3,7 @@ import os
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Exists, OuterRef
+from django.db.models.functions import Lower
 from django.http import FileResponse
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -76,7 +77,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 in_cart=Exists(cart_subquery)
             ).filter(in_cart=True)
 
-        return queryset.order_by('id')
+        return queryset
 
     def get_serializer_class(self):
         if self.request.method in ['POST', 'PUT', 'PATCH', 'DELETE']:

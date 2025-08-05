@@ -2,9 +2,12 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.db.models import Count
 from django.utils.safestring import mark_safe
+from django.contrib.auth.models import Group
 
 from .models import (Favorite, Follow, Ingredient, Recipe, RecipeIngredient,
                      ShoppingCartItem, Tag, User)
+
+admin.site.unregister(Group)
 
 
 class HasRelatedObjectsFilter(admin.SimpleListFilter):
@@ -27,13 +30,13 @@ class HasRelatedObjectsFilter(admin.SimpleListFilter):
 class HasSubscriptionsFilter(HasRelatedObjectsFilter):
     title = 'Есть подписки'
     parameter_name = 'has_subscriptions'
-    related_name = 'follower'
+    related_name = 'follower_followes'
 
 
 class HasSubscribersFilter(HasRelatedObjectsFilter):
     title = 'Есть подписчики'
     parameter_name = 'has_subscribers'
-    related_name = 'following'
+    related_name = 'author_followes'
 
 
 class HasFavoritesFilter(HasRelatedObjectsFilter):
@@ -212,7 +215,7 @@ class CookingTimeFilter(admin.SimpleListFilter):
         if selected in self.thresholds:
             return self._range_filter(
                 bounds=self.thresholds[selected]['range'],
-                queryset=queryset
+                recipes=queryset
             )
         return queryset
 
@@ -224,7 +227,7 @@ class RecipeAdmin(admin.ModelAdmin):
         'favorites_count', 'products_list', 'tags_list', 'image_tag'
     )
     search_fields = ('name', 'author__username')
-    list_filter = ('tags', 'author', 'cooking_time',)
+    list_filter = ('author', CookingTimeFilter, 'tags')
     inlines = (RecipeIngredientInline,)
 
     def get_queryset(self, request):
@@ -240,19 +243,22 @@ class RecipeAdmin(admin.ModelAdmin):
 
     @admin.display(description='Продукты')
     def products_list(self, recipe):
-        return '<br>'.join([
+        return mark_safe( '<br>'.join([
             f'{ri.ingredient.name} - '
             f'{ri.amount} {ri.ingredient.measurement_unit}'
             for ri in recipe.ingredients_in_recipe.all()])
+        )
 
     @admin.display(description='Теги')
     def tags_list(self, recipe):
-        return '<br>'.join([tag.name for tag in recipe.tags.all()])
+        return mark_safe('<br>'.join([tag.name for tag in recipe.tags.all()]))
 
     @admin.display(description='Изображение')
     def image_tag(self, recipe):
-        if recipe.image:
-            return f'<img src="{recipe.image.url}" style="height: 50px;"/>'
+        return mark_safe(
+            f'<img src="{recipe.image.url}" '
+            f'style="height: 50px; object-fit: cover; border-radius: 4px;" />'
+        )
         return ''
 
-    list_filter = ('author', CookingTimeFilter)
+
