@@ -188,11 +188,11 @@ class CookingTimeFilter(admin.SimpleListFilter):
 
         self.thresholds = {
             'fast': {
-                'range': (0, short_time_max),
+                'range': (0, short_time_max - 1),
                 'label': f'быстрее {short_time_max} мин',
             },
             'medium': {
-                'range': (short_time_max, medium_time_max),
+                'range': (short_time_max, medium_time_max - 1),
                 'label': f'быстрее {medium_time_max} мин',
             },
             'long': {
