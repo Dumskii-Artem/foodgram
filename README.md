@@ -167,6 +167,23 @@ Windows: python -m pip install --upgrade pip
 ```
 pip install -r requirements.txt
 ```
+Пора создать файл с настройками /foodgram/.env
+```
+# .env
+# это локальный вариант
+POSTGRES_USER=none
+POSTGRES_PASSWORD=none
+POSTGRES_DB=none
+# Добавляем переменные для Django-проекта:
+DB_HOST=
+DB_PORT=5432
+SECRET_KEY=django-insecure-fi#^!#-3qp%ja0dhmf&=s$(v6f%t!*^f*jv2f500jpsr5f4nlk
+DEBUG=True
+ALLOWED_HOSTS=127.0.0.1,localhost
+USE_SQLITE=True
+RECIPE_SHORT_LINK = '127.0.0.1:3000/recipes/'
+```
+
 Выполнить миграции:
 ```
 Ubuntu: python3 manage.py migrate
