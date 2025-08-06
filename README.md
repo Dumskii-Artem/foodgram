@@ -1,6 +1,7 @@
 # Описание проекта
 
-## Учебный проект Foodgram. Yandex-Practicum. Python Backend. Август 2025г
+## Учебный проект Foodgram. 
+## Yandex-Practicum. Python Backend. Август 2025г
 
 **Foodgram** — это онлайн‑платформа для публикации и поиска рецептов.
 Пользователи могут:
