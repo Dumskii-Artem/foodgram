@@ -1,6 +1,6 @@
-## Описание проекта
+# Описание проекта
 
-Проект Foodgram. Yandex-Practicum. Python Backend
+## Учебный проект Foodgram. Yandex-Practicum. Python Backend. Август 2025г
 
 **Foodgram** — это онлайн‑платформа для публикации и поиска рецептов.
 Пользователи могут:
@@ -13,6 +13,8 @@
 * получить список необходимых покупок для реализации рецепта
 
 ## Ссылки на проект
+
+### эти ссылки работают, пока есть бесплатный учебный сервер.
 
 * [Сайт](https://babybear.myddns.me/)
 * [Админка](https://babybear.myddns.me/admin/)
@@ -42,6 +44,31 @@ GitHub: [Dumskii-Artem](https://github.com/Dumskii-Artem/foodgram.git)
 * **Веб‑сервер** — Gunicorn + Nginx
 * **CI/CD** — GitHub Actions, деплой по SSH
 
+## Запуск сервера с докер контейнерами (CI/CD)
+
+В GitHub Actions настроены следующие шаги:
+
+1. Проверка кода линтером flake8
+2. Сборка фронтенда (`npm run build`)
+3. Сборка и запуск контейнеров Docker
+4. Деплой на сервер через SSH с использованием Docker
+5. Отправка сообщения в телеграмм
+
+### Для запуска этого процесса нужно руками сделать следующее
+- создать репозиторий на GitHub и аккаунт на DockerHub
+- заполучить сервер, на котором будет размещен сайт
+### добавить на GitHub Repository secrets
+Settings->Secrets and variables->Actions
+- DOCKER_PASSWORD - пароль на DockerHub
+- DOCKER_USERNAME - логин на DockerHub
+- HOST_IP - IP адрес вашего сервера, куда хотите поместить сайт
+- HOST_SSH_KEY - закрытый ключ (длинный) для подключения к вашему серверу
+- HOST_USER - логин на вашем сервере
+- SSH_PASSPHRASE - что нужно сказать, заходя на сервер - небольшая строка типа пароля
+- TELEGRAM_TO - строка вида 123456789
+- TELEGRAM_TOKEN - строка вида 7814787497:*****************-***************gk
+
+
 ### поместить на сервер файлы из папки server
 подключение к серверу по протоколу ssh (образец)
 ```
@@ -70,6 +97,16 @@ ALLOWED_HOSTS=babybear.myddns.me,89.169.164.5,127.0.0.1,localhost
 USE_POSTGRESQL=True
 RECIPE_SHORT_LINK = 'babybear.myddns.me/recipes/'
 ```
+и еще 2 файла из папки foodgram/data
+- ingredients.json
+- tags.json
+
+команды для копирования (запускаем с локального компьютера):
+```
+scp -i ~/.ssh/yp_16_sprint/yc-d-art-mail.dat  ./data/ingredients.json yc-user@89.169.164.5:/home/yc-user/foodgram/
+
+scp -i ~/.ssh/yp_16_sprint/yc-d-art-mail.dat  ./data/tags.json yc-user@89.169.164.5:/home/yc-user/foodgram/
+```
 
 ### на удаленном сервере заходим в контейнер
 ```
@@ -82,6 +119,11 @@ python manage.py migrate
 создаем администратора
 ```
 python manage.py createsuperuser
+```
+### копируем файлы с данными внутрь контейнера
+```
+sudo docker cp ingredients.json foodgram-backend-1:/app/
+sudo docker cp tags.json foodgram-backend-1:/app/
 ```
 запускаем скрипты для заполнения базы
 ```
@@ -151,6 +193,9 @@ Windows: python manage.py createsuperuser
 Ubuntu: python3 manage.py runserver
 Windows: python manage.py runserver
 ```
+
+После запуска сервера можно загрузить коллекцию в Postman и запустить её.
+
 и [Админка]( http://127.0.0.1:8000/admin)
 
 и [Документация к API сервера](http://127.0.0.1:8000/api/docs)
@@ -162,8 +207,23 @@ Windows: python manage.py runserver
 * Swagger UI: [http://localhost/api/docs/](http://localhost/api/docs/)
 * Redoc: [http://localhost/api/redoc/](http://localhost/api/redoc/)
 
+### Запуск Frontend (вариант 1)
 
-### Запуск Frontend
+Чтобы увидеть работу фронтенда, нужно одновременно запустить фронтенд и бэкенд. Для этого можно испрользовать, например, 2 экземпляра VSCode. Итак, запустили сервер backend и в другом VSCode выполняем
+
+```
+ npm install --legacy-peer-deps
+```
+очень много ругается, но это не должно пугать. в крайнем случае подключите к решению знатоков из ChatGPT
+
+Далее
+```
+npm start
+```
+в браузере по умолчанию должна открыться страница http://localhost:3000 нашим проектом. Можно или вновь зарегистрироваться или зайти через админский аккаунт, который Вы уже создали
+
+
+### Запуск Frontend (вариант 2)
 
 Находясь в папке infra, выполните команду docker-compose up.
 При выполнении этой команды контейнер frontend, описанный в docker-compose.yml, 
