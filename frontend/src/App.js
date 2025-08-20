@@ -1,3 +1,4 @@
+// home/babybear/_yp/yp_57/18_sprint/foodgram/frontend/src/App.js
 import "./fonts/SanFranciscoProDisplay/fonts.css";
 import "./App.css";
 import { Switch, Route, useHistory, Redirect } from "react-router-dom";
@@ -226,8 +227,11 @@ function App() {
             <Route
               exact
               path="/user/:id"
-              component={User}
-              updateOrders={updateOrders}
+              render={(props) => (
+                <User {...props} updateOrders={updateOrders} />
+              )}
+            // component={User}
+            // updateOrders={updateOrders}
             />
             <ProtectedRoute
               exact
@@ -304,7 +308,7 @@ function App() {
 
             <Route exact path="/technologies">
               {/*<NotFound />*/}
-              <Technologies component={Technologies}/>
+              <Technologies component={Technologies} />
             </Route>
 
             <Route exact path="/recipes">

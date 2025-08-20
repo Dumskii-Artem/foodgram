@@ -1,3 +1,4 @@
+// frontend/src/pages/user/index.js
 import {
   Card,
   Title,
@@ -40,8 +41,8 @@ const UserPage = ({ updateOrders }) => {
   const userContext = useContext(UserContext);
   const authContext = useContext(AuthContext);
 
-  const getRecipes = ({ page = 1, tags, author = id }) => {
-    api.getRecipes({ page, author, tags }).then((res) => {
+  const getRecipes = ({ page = 1, tags }) => {
+    api.getRecipes({ page, author: id, tags }).then((res) => {
       const { results, count } = res;
       setRecipes(results);
       setRecipesCount(count);
@@ -112,9 +113,8 @@ const UserPage = ({ updateOrders }) => {
               <div
                 className={styles.userAvatar}
                 style={{
-                  "background-image": `url(${
-                    (user && user.avatar) || DefaultImage
-                  })`,
+                  "background-image": `url(${(user && user.avatar) || DefaultImage
+                    })`,
                 }}
               />
               <Title
