@@ -40,8 +40,8 @@ const UserPage = ({ updateOrders }) => {
   const userContext = useContext(UserContext);
   const authContext = useContext(AuthContext);
 
-  const getRecipes = ({ page = 1, tags }) => {
-    api.getRecipes({ page, author: id, tags }).then((res) => {
+  const getRecipes = ({ page = 1, tags, author = id }) => {
+    api.getRecipes({ page, author, tags }).then((res) => {
       const { results, count } = res;
       setRecipes(results);
       setRecipesCount(count);
